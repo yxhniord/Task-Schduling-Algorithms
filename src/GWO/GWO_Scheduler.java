@@ -29,7 +29,7 @@ public class GWO_Scheduler {
         Datacenter datacenter = Commons.createDatacenter("Datacenter_GWO",num);
 
         // Third step: Create Broker
-        DatacenterBroker_GWO broker = createBroker("Broker_GWO");
+        DatacenterBroker_GWO broker = createBroker("Broker_GWO", 100);
         int brokerId = broker.getId();
 
         Commons.createVM(brokerId,num);
@@ -75,7 +75,7 @@ public class GWO_Scheduler {
     return finishtime;
   }
 
-  private static DatacenterBroker_GWO createBroker(String name) throws Exception {
-    return new DatacenterBroker_GWO(name);
+  private static DatacenterBroker_GWO createBroker(String name, int iter) throws Exception {
+    return new DatacenterBroker_GWO(name, iter);
   }
 }
