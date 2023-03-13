@@ -64,7 +64,7 @@ public class FCFS_Scheduler {
         double aver = sum / dtaskNum;
         double di = (max - min) / aver;
 
-        System.out.println(" di = " +  di);
+//        System.out.println(" di = " +  di);
         System.out.println("********max = " + max + "*******min = " + min);
 
         Log.printLine("FCFS Scheduler finished!");

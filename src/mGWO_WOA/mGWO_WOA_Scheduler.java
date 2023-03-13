@@ -1,16 +1,17 @@
-package GWO;
+package mGWO_WOA;
 
-import utils.*;
+import mGWO_WOA.DatacenterBroker_mGWO_WOA;
 import java.util.List;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.core.CloudSim;
+import utils.Commons;
 
-public class GWO_Scheduler {
+public class mGWO_WOA_Scheduler {
   public static double main(String[] args) {
     double finishtime = 0.0;
-    Log.printLine("Starting GWO Scheduler...");
+    Log.printLine("Starting mGWO_WOA Scheduler...");
 
     try {
       // First step: Initialize the CloudSim package. It should be called
@@ -26,10 +27,10 @@ public class GWO_Scheduler {
         // Second step: Create Datacenters
         // Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
         @SuppressWarnings("unused")
-        Datacenter datacenter = Commons.createDatacenter("Datacenter_GWO",num);
+        Datacenter datacenter = Commons.createDatacenter("Datacenter_mGWO_WOA",num);
 
         // Third step: Create Broker
-        DatacenterBroker_GWO broker = createBroker("Broker_GWO", 100);
+        DatacenterBroker_mGWO_WOA broker = createBroker("Broker_mGWO_WOA", 100);
         int brokerId = broker.getId();
 
         Commons.createVM(brokerId,num);
@@ -66,7 +67,7 @@ public class GWO_Scheduler {
 //        System.out.println(" di = " +  di);
         System.out.println("********max = " + max + "*******min = " + min);
 
-        Log.printLine("GWO Scheduler finished!");
+        Log.printLine("mGWO_WOA Scheduler finished!");
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -75,7 +76,7 @@ public class GWO_Scheduler {
     return finishtime;
   }
 
-  private static DatacenterBroker_GWO createBroker(String name, int iter) throws Exception {
-    return new DatacenterBroker_GWO(name, iter);
+  private static DatacenterBroker_mGWO_WOA createBroker(String name, int iter) throws Exception {
+    return new DatacenterBroker_mGWO_WOA(name, iter);
   }
 }
