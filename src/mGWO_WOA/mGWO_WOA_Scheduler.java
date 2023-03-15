@@ -1,6 +1,5 @@
 package mGWO_WOA;
 
-import mGWO_WOA.DatacenterBroker_mGWO_WOA;
 import java.util.List;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Datacenter;
@@ -30,7 +29,7 @@ public class mGWO_WOA_Scheduler {
         Datacenter datacenter = Commons.createDatacenter("Datacenter_mGWO_WOA",num);
 
         // Third step: Create Broker
-        DatacenterBroker_mGWO_WOA broker = createBroker("Broker_mGWO_WOA", 100);
+        DatacenterBroker_mGWO_WOA broker = createBroker("Broker_mGWO_WOA", 30, 100);
         int brokerId = broker.getId();
 
         Commons.createVM(brokerId,num);
@@ -76,7 +75,7 @@ public class mGWO_WOA_Scheduler {
     return finishtime;
   }
 
-  private static DatacenterBroker_mGWO_WOA createBroker(String name, int iter) throws Exception {
-    return new DatacenterBroker_mGWO_WOA(name, iter);
+  private static DatacenterBroker_mGWO_WOA createBroker(String name, int popSize, int maxIter) throws Exception {
+    return new DatacenterBroker_mGWO_WOA(name, popSize, maxIter);
   }
 }

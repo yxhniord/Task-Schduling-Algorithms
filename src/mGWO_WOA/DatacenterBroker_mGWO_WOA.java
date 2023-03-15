@@ -12,12 +12,14 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 
 public class DatacenterBroker_mGWO_WOA extends DatacenterBroker {
 
-	protected int iter;
+	protected int maxIter;
+	protected int popSize;
 
-  public DatacenterBroker_mGWO_WOA(String name, int iter) throws Exception {
+  public DatacenterBroker_mGWO_WOA(String name, int popSize, int maxIter) throws Exception {
     super(name);
 
-		this.iter = iter;
+		this.maxIter = maxIter;
+		this.popSize = popSize;
   }
 
   @Override
@@ -25,12 +27,12 @@ public class DatacenterBroker_mGWO_WOA extends DatacenterBroker {
 		List<Cloudlet> clList = getCloudletList();
 		List<Vm> vm_list = getVmsCreatedList();
 
-		mGWO_WOA_Implement mgwo_woa = new mGWO_WOA_Implement();
-		Map<Integer,Integer> allocatedTasks = mgwo_woa.allocateTasks(clList,vm_list,iter);
+		mGWO_WOA_Implement mgwo_woa = new mGWO_WOA_Implement(popSize, maxIter);
+		Map<Integer,Integer> allocatedTasks = mgwo_woa.allocateTasks(clList,vm_list);
 
-		for (int i=0;i<clList.size();i++) {
-			Cloudlet cloudlet = clList.get(i);
-			Vm vm = vm_list.get(allocatedTasks.get(i));
+		for (Map.Entry<Integer, Integer> entry : allocatedTasks.entrySet()) {
+			Cloudlet cloudlet = clList.get(entry.getKey());
+			Vm vm = vm_list.get(entry.getValue());
 			Log.printLine(CloudSim.clock() + ": " + getName() + ": Sending cloudlet "
 					+ cloudlet.getCloudletId() + " to VM #" + vm.getId());
 			cloudlet.setVmId(vm.getId());
