@@ -32,4 +32,5 @@ public class Constants {
   public static long FILE_SIZE = 300;
   public static long OUTPUT_SIZE = 300;
   public static int TASK_PES = 1;
+  public static int NO_OF_TASKS = 300;
 }
