@@ -9,6 +9,9 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.Vm;
+
 public class Cheetah {
 	private double[][] jobVMMapping;
 
@@ -16,9 +19,10 @@ public class Cheetah {
 		this.jobVMMapping = jobVMMapping;
 	}
 
-	public double getFitness() {
-		// TODO Fitness Function
-		return new Random().nextDouble();
+	public double getFitness(List<Cloudlet> taskList, List<Vm> vmList) {
+		double w1 = 0.5;
+		double w2 = 0.5;
+		return w1 * calculateMakespan(taskList, vmList) + w2 * calculateEnergy(taskList, vmList);
 	}
 
 	public static Cheetah getRandomCheetah(int numberofVM, int numberofJobs) {
@@ -106,7 +110,7 @@ public class Cheetah {
 					} else {
 						allocatedTasks.put(j, i);
 					}
-					
+
 				}
 			}
 		}
@@ -117,7 +121,29 @@ public class Cheetah {
 	public String toString() {
 		return this.getMap().toString();
 	}
-	
-	
+
+	private double calculateMakespan(List<Cloudlet> taskList, List<Vm> vmList) {
+		double makespan = 0;
+		double[] vmTime = new double[vmList.size()];
+		for (int i = 0; i < vmList.size(); i++) {
+			for (int j = 0; j < taskList.size(); j++) {
+				if (jobVMMapping[i][j] != 0) {
+					// TODO Update
+					vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+					makespan = Math.max(makespan, vmTime[i]);
+				}
+			}
+		}
+		return makespan;
+	}
+
+	private double calculateEnergy(List<Cloudlet> taskList, List<Vm> vmList) {
+		// TODO: calculate the energy of the schedule
+		double energy = 0;
+		for (int i = 0; i < taskList.size(); i++) {
+			// energy += taskList.get(i).getCloudletLength() * vmList.get(schedule[i]).getHost()
+		}
+		return energy;
+	}
 
 }
