@@ -1,6 +1,5 @@
 package mGWO_mWOA;
 
-import GWO.DatacenterBroker_GWO;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Log;
@@ -9,10 +8,10 @@ import utils.Commons;
 
 import java.util.List;
 
-public class mGWO_Scheduler {
+public class mGWO_EBWOA_Scheduler {
     public static void main(String[] args) {
         double finishtime = 0.0;  // no usage for now
-        Log.printLine("Starting GWO Scheduler...");
+        Log.printLine("Starting mGWO Scheduler...");
 
         try {
             // First step: Initialize the CloudSim package. It should be called
@@ -28,10 +27,10 @@ public class mGWO_Scheduler {
                 // Second step: Create DataCenters.
                 // DataCenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
                 @SuppressWarnings("unused")
-                Datacenter datacenter = Commons.createDatacenter("Datacenter_GWO", num);
+                Datacenter datacenter = Commons.createDatacenter("Datacenter_mGWO", num);
 
                 // Third step: Create Broker
-                DatacenterBroker_mGWO broker = createBroker("Broker_mGWO", 100);
+                DatacenterBroker_mGWO_EBWOA broker = createBroker("Broker_mGWO", 100);
                 int brokerId = broker.getId();
 
                 Commons.createVM(brokerId, num);
@@ -79,7 +78,7 @@ public class mGWO_Scheduler {
 
     }
 
-    private static DatacenterBroker_mGWO createBroker(String name, int iter) throws Exception {
-        return new DatacenterBroker_mGWO(name, iter);
+    private static DatacenterBroker_mGWO_EBWOA createBroker(String name, int iter) throws Exception {
+        return new DatacenterBroker_mGWO_EBWOA(name, iter);
     }
 }
