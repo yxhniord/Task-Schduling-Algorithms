@@ -2,3 +2,6 @@
 *.iml
 out
 /bin/
+.classpath
+.project
+*.prefs
