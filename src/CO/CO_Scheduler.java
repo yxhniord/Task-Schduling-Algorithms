@@ -34,7 +34,7 @@ public class CO_Scheduler {
 				int brokerId = broker.getId();
 
 				Commons.createVM(brokerId, num);
-				Commons.createCloudlet(brokerId, 100 * k);
+				Commons.createCloudlet(brokerId, 1000);
 
 				broker.submitVmList(Commons.vmList);
 				broker.submitCloudletList(Commons.cloudletList);
