@@ -27,7 +27,7 @@ public class DatacenterBroker_mGWO_WOA extends DatacenterBroker {
 		List<Cloudlet> clList = getCloudletList();
 		List<Vm> vm_list = getVmsCreatedList();
 
-		mGWO_WOA_Implement mgwo_woa = new mGWO_WOA_Implement(popSize, maxIter);
+		mGWO_WOA_Implement1 mgwo_woa = new mGWO_WOA_Implement1(popSize, maxIter);
 		Map<Integer,Integer> allocatedTasks = mgwo_woa.allocateTasks(clList,vm_list);
 
 		for (Map.Entry<Integer, Integer> entry : allocatedTasks.entrySet()) {

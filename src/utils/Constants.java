@@ -32,4 +32,8 @@ public class Constants {
   public static long FILE_SIZE = 300;
   public static long OUTPUT_SIZE = 300;
   public static int TASK_PES = 1;
+
+  //Task Scheduler Parameters
+  public static int POPULATION = 30;
+  public static int MAX_ITER = 100;
 }

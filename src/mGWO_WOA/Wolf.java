@@ -58,7 +58,7 @@ public class Wolf {
   }
 
   public double calculateFitness(){
-    this.fitness = calculateMakespan() + calculateEnergy();
+    this.fitness = calculateMakespan() + calculateCost();
     return this.fitness;
   }
 
@@ -77,13 +77,13 @@ public class Wolf {
     return makespan;
   }
 
-  private double calculateEnergy(){
-    // TODO: calculate the energy of the schedule
-    double energy = 0;
+  private double calculateCost(){
+    double cost = 0;
     for (int i = 0; i < taskNum; i++) {
-//      energy += taskList.get(i).getCloudletLength() * vmList.get(schedule[i]).getHost()
+      Cloudlet task = taskList.get(i);
+      cost += task.getCostPerSec() * task.getActualCPUTime();
     }
-    return energy;
+    return cost;
   }
 
 }

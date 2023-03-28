@@ -6,6 +6,7 @@ import CO.CO_Scheduler;
 import FCFS.FCFS_Scheduler;
 import GWO.GWO_Scheduler;
 import HOA.HOA_Scheduler;
+import mGWO_WOA.mGWO_WOA_Scheduler;
 
 public class Scheduler_Comparison {
 
@@ -21,6 +22,7 @@ public class Scheduler_Comparison {
 		TimeUnit.SECONDS.sleep(1);
 		HOA_Scheduler.main(args);
 		System.out.println("===========================================");
+		mGWO_WOA_Scheduler.main(args);
 	}
 
 }
