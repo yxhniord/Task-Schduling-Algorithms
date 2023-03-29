@@ -9,14 +9,13 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 
 import java.util.List;
 import java.util.Map;
-
 public class DatacenterBroker_HOA extends DatacenterBroker {
-    private static final int num_horses = 10;
+    protected int num_horses;
     protected int iter;
 
-    public DatacenterBroker_HOA(String name, int iter) throws Exception {
+    public DatacenterBroker_HOA(String name, int num_horses, int iter) throws Exception {
         super(name);
-
+        this.num_horses = num_horses;
         this.iter = iter;
     }
 
@@ -25,8 +24,8 @@ public class DatacenterBroker_HOA extends DatacenterBroker {
         List<Cloudlet> clList = getCloudletList();
         List<Vm> vm_list = getVmsCreatedList();
 
-        HOAImplement hoa = new HOAImplement(num_horses,iter,clList.size(), vm_list.size());
-        Map<Integer, Integer> allocatedTasks = hoa.implement();
+        HOAImplement hoa = new HOAImplement(num_horses, iter, clList.size(), vm_list.size());
+        Map<Integer, Integer> allocatedTasks = hoa.implement(clList, vm_list);
         System.out.println("allocatedTasks"+ allocatedTasks.get(1));
         System.out.println("HOA Done");
         for (int i = 0; i < clList.size(); i++) {
