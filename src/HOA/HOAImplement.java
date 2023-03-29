@@ -1,40 +1,13 @@
 package HOA;
 
+import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.Vm;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class HOAImplement {
-    private static final double ALPHA = 0.1;
-    private static final double BETA = 0.3;
-    private static final double GAMMA = 0.6;
-    private static final double DELTA = 1;
-    private static final double g_Alpha = 1.50;
-    private static final double d_Alpha = 0.5;
-
-    private static final double g_Beta = 1.5;
-    private static final double h_Beta = 0.9;
-    private static final double s_Beta = 0.2;
-    private static final double d_Beta = 0.2;
-
-    private static final double g_Gamma = 1.5;
-    private static final double h_Gamma = 0.5;
-    private static final double s_Gamma = 0.1;
-    private static final double i_Gamma = 0.3;
-    private static final double d_Gamma = 0.1;
-    private static final double r_Gamma = 0.05;
-
-    private static final double g_Delta = 1.5;
-    private static final double i_Delta = 0.3;
-    private static final double r_Delta = 0.1;
-
-    private static final double w = 0.95;
-    private static final double g_l = 0.95;
-    private static final double g_u = 1.05;
-    private static final double p = Math.random();
-    private static final double BAD = 0.2;
-    private static final double GOOD = 0.1;
-
     private int num_horses;
     private int num_iterations;
     private int num_tasks;
@@ -66,7 +39,7 @@ public class HOAImplement {
     }
 
 
-    public Map<Integer, Integer> implement() {
+    public Map<Integer, Integer> implement(List<Cloudlet> taskList, List<Vm> vmList) {
         // initialize horse positions
         double[][][] positions = new double[num_horses][num_tasks][num_vims];
         for (int i = 0; i < num_horses; i++) {
@@ -77,10 +50,15 @@ public class HOAImplement {
         double[][] lead_position;
         int lead_horse;
 
+        // best horse with the position information
+        double[][] best_position = positions[0];
+        double best_fitness = evaluateFitness(positions[0], taskList, vmList);
+
         // perform horse herd optimization
         for (int iteration = 0; iteration < num_iterations; iteration++) {
             for (int i = 0; i < num_horses; i++){
-                fitness[i][0] = evaluateFitness(positions[i]);
+//                fitness[i][0] = evaluateFitness(positions[i]);
+                fitness[i][0] = evaluateFitness(positions[i], taskList, vmList);
                 fitness[i][1] = i;
             }
 
@@ -88,67 +66,85 @@ public class HOAImplement {
             Arrays.sort(fitness, Comparator.comparingDouble(o -> o[0]));
 
             // check the leader horse
-            lead_horse = (int)(fitness[0][1]);
+            lead_horse = (int)Math.ceil(fitness[0][1]);
             lead_position = positions[lead_horse];
-            if(fitness[0][0] == 0.0 ){
-                return getMap(lead_position);
+            if(fitness[0][0] < best_fitness){
+                best_fitness = fitness[0][0];
+                best_position = lead_position;
             }
+//            if(fitness[0][0] < 0.01 ){
+//                return getMap(lead_position);
+//            }
 
             // sorted horses with fitness scores
             positions = sortedHorse(fitness, positions);
 
             // compute alpha, beta, gamma, delta horses velocity and update positions
-            double[][][] alpha_horse_velocity = new double[(int)(ALPHA*num_horses)][num_tasks][num_vims];
-            double[][][] beta_horse_velocity = new double[(int)Math.ceil((BETA - ALPHA)*num_horses)][num_tasks][num_vims];
-            double[][][] gamma_horse_velocity = new double[(int)Math.ceil((GAMMA - BETA)*num_horses)][num_tasks][num_vims];
-            double[][][] delta_horse_velocity = new double[(int)Math.ceil((DELTA - GAMMA)*num_horses)][num_tasks][num_vims];
+            double[][][] alpha_horse_velocity = new double[(int)(HOAConstants.ALPHA*num_horses)][num_tasks][num_vims];
+            double[][][] beta_horse_velocity = new double[(int)Math.ceil((HOAConstants.BETA - HOAConstants.ALPHA)*num_horses)][num_tasks][num_vims];
+            double[][][] gamma_horse_velocity = new double[(int)Math.ceil((HOAConstants.GAMMA - HOAConstants.BETA)*num_horses)][num_tasks][num_vims];
+            double[][][] delta_horse_velocity = new double[(int)Math.ceil((HOAConstants.DELTA - HOAConstants.GAMMA)*num_horses)][num_tasks][num_vims];
 
             for (int i = 0; i < num_horses; i++) {
-                if(i < ALPHA*num_horses){
-                    alpha_horse_velocity[i] = matrixSubtraction(matrixMultiply(g_Alpha*(g_u + g_l*p)*w, positions[i]),
-                            matrixMultiply(d_Alpha*w, matrixSubtraction(badAvgPosition(BAD*num_horses, positions),positions[i])));
+                if(i < HOAConstants.ALPHA*num_horses){
+                    alpha_horse_velocity[i] = matrixSubtraction(matrixMultiply(HOAConstants.g_Alpha*(HOAConstants.g_u + HOAConstants.g_l*HOAConstants.p)*HOAConstants.w, positions[i]),
+                            matrixMultiply(HOAConstants.d_Alpha*HOAConstants.w, matrixSubtraction(badAvgPosition(HOAConstants.BAD*num_horses, positions),positions[i])));
                     positions[i] = matrixAddition(positions[i], alpha_horse_velocity[i]);
-                }else if(i < BETA*num_horses){
-                    beta_horse_velocity[i - (int)Math.ceil(ALPHA*num_horses)] = matrixAddition(
-                            matrixAddition(matrixMultiply(g_Beta*(g_u + g_l*p)*w, positions[i]),
-                                    matrixMultiply(h_Beta*w,matrixSubtraction(positions[0], positions[i]))),
-                            matrixSubtraction(matrixMultiply(s_Beta*w,matrixSubtraction(goodAvgPosition(num_horses, positions),positions[i])),
-                                    matrixMultiply(d_Beta*w,matrixSubtraction(badAvgPosition(BAD*num_horses, positions),positions[i]))));
-                    positions[i] = matrixAddition(positions[i], beta_horse_velocity[i - (int)Math.ceil(ALPHA*num_horses)]);
-                }else if(i < GAMMA*num_horses){
-                    gamma_horse_velocity[i - (int)Math.ceil(BETA*num_horses)] = matrixAddition(
+                }else if(i < HOAConstants.BETA*num_horses){
+                    beta_horse_velocity[i - (int)Math.ceil(HOAConstants.ALPHA*num_horses)] = matrixAddition(
+                            matrixAddition(matrixMultiply(HOAConstants.g_Beta*(HOAConstants.g_u + HOAConstants.g_l*HOAConstants.p)*HOAConstants.w, positions[i]),
+                                    matrixMultiply(HOAConstants.h_Beta*HOAConstants.w,matrixSubtraction(positions[0], positions[i]))),
+                            matrixSubtraction(matrixMultiply(HOAConstants.s_Beta*HOAConstants.w,matrixSubtraction(goodAvgPosition(num_horses, positions),positions[i])),
+                                    matrixMultiply(HOAConstants.d_Beta*HOAConstants.w,matrixSubtraction(badAvgPosition(HOAConstants.BAD*num_horses, positions),positions[i]))));
+                    positions[i] = matrixAddition(positions[i], beta_horse_velocity[i - (int)Math.ceil(HOAConstants.ALPHA*num_horses)]);
+                }else if(i < HOAConstants.GAMMA*num_horses){
+                    gamma_horse_velocity[i - (int)Math.ceil(HOAConstants.BETA*num_horses)] = matrixAddition(
                             matrixAddition(
-                                    matrixMultiply(g_Gamma*(g_u + g_l*p)*w, positions[i]),
-                                    matrixMultiply(h_Gamma*w,matrixSubtraction(positions[0],positions[i]))),
+                                    matrixMultiply(HOAConstants.g_Gamma*(HOAConstants.g_u + HOAConstants.g_l*HOAConstants.p)*HOAConstants.w, positions[i]),
+                                    matrixMultiply(HOAConstants.h_Gamma*HOAConstants.w,matrixSubtraction(positions[0],positions[i]))),
                             matrixAddition(
                                     matrixAddition(
-                                            matrixMultiply(s_Gamma*w, matrixSubtraction(goodAvgPosition(num_horses, positions),positions[i])),
-                                            matrixMultiply(i_Gamma*w, matrixSubtraction(goodAvgPosition(GOOD * num_horses, positions), positions[i]))),
+                                            matrixMultiply(HOAConstants.s_Gamma*HOAConstants.w, matrixSubtraction(goodAvgPosition(num_horses, positions),positions[i])),
+                                            matrixMultiply(HOAConstants.i_Gamma*HOAConstants.w, matrixSubtraction(goodAvgPosition(HOAConstants.GOOD * num_horses, positions), positions[i]))),
                                     matrixSubtraction(
-                                            matrixMultiply(r_Gamma*w*p,positions[i]),
-                                            matrixMultiply(d_Gamma*w,matrixSubtraction(badAvgPosition(BAD*num_horses, positions), positions[i]))))
+                                            matrixMultiply(HOAConstants.r_Gamma*HOAConstants.w*HOAConstants.p,positions[i]),
+                                            matrixMultiply(HOAConstants.d_Gamma*HOAConstants.w,matrixSubtraction(badAvgPosition(HOAConstants.BAD*num_horses, positions), positions[i]))))
                     );
-                    positions[i] = matrixAddition(positions[i], gamma_horse_velocity[i - (int)Math.ceil(BETA*num_horses)]);
-                }else if(i < DELTA*num_horses){
-                    delta_horse_velocity[i- (int)Math.ceil(GAMMA*num_horses)] = matrixAddition(
-                            matrixAddition(matrixMultiply(g_Delta*(g_u + g_l*p)*w, positions[i]),
-                                    matrixMultiply(r_Delta*w*p, positions[i])),
-                            matrixMultiply(i_Delta*w,
-                                    matrixSubtraction(goodAvgPosition(GOOD*num_horses,positions),positions[i])));
-                    positions[i] = matrixAddition(positions[i], delta_horse_velocity[i- (int)Math.ceil(GAMMA*num_horses)]);
+                    positions[i] = matrixAddition(positions[i], gamma_horse_velocity[i - (int)Math.ceil(HOAConstants.BETA*num_horses)]);
+                }else if(i < HOAConstants.DELTA*num_horses){
+                    delta_horse_velocity[i- (int)Math.ceil(HOAConstants.GAMMA*num_horses)] = matrixAddition(
+                            matrixAddition(matrixMultiply(HOAConstants.g_Delta*(HOAConstants.g_u + HOAConstants.g_l*HOAConstants.p)*HOAConstants.w, positions[i]),
+                                    matrixMultiply(HOAConstants.r_Delta*HOAConstants.w*HOAConstants.p, positions[i])),
+                            matrixMultiply(HOAConstants.i_Delta*HOAConstants.w,
+                                    matrixSubtraction(goodAvgPosition(HOAConstants.GOOD*num_horses,positions),positions[i])));
+                    positions[i] = matrixAddition(positions[i], delta_horse_velocity[i- (int)Math.ceil(HOAConstants.GAMMA*num_horses)]);
                 }
             }
 
         }
 
         // print final horse positions
-        System.out.println("Final horse positions:");
-        for (int i = 0; i < num_horses; i++) {
-            System.out.println("Horse " + (i+1) + ": " + positions[i]);
-        }
+//        System.out.println("Final horse positions:");
+//        for (int i = 0; i < num_horses; i++) {
+//            System.out.println("Horse " + (i+1) + ": " );
+//            displayMatrix(positions[i]);
+//        }
 
-        // return the lead horse
-        return getMap(positions[0]);
+        // print final makespan
+        System.out.println("Best horse makespan:" + fitness[0][0]);
+
+        // return the best horse
+//        return getMap(positions[0]);
+        return getMap(best_position);
+    }
+
+    private void displayMatrix(double[][] matrix){
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 
     private double[][] matrixAddition(double[][] matrix1, double[][] matrix2){
@@ -199,15 +195,39 @@ public class HOAImplement {
     }
 
     // evaluation function to calculate fitness of horses at given positions
-    private double evaluateFitness(double[][] positions) {
-        double fitness = 0.0;
+    private double evaluateFitness(double[][] positions, List<Cloudlet> taskList, List<Vm> vmList) {
+//        double fitness = 0.0;
+//        for (int i = 0; i < num_tasks; i++) {
+//            for (int j = 0; j < num_vims; j++) {
+//                // calculate fitness based on position (e.g. distance from optimal position)
+//                fitness += Math.sqrt(positions[i][j]);
+//            }
+//        }
+//        return fitness;
+        return calculateMakespan(positions, taskList, vmList) + calculateCost(taskList);
+    }
+
+    private double calculateMakespan(double[][] positions, List<Cloudlet> taskList, List<Vm> vmList) {
+        double makespan = 0;
+        double[] vmTime = new double[num_vims];
         for (int i = 0; i < num_tasks; i++) {
             for (int j = 0; j < num_vims; j++) {
-                // calculate fitness based on position (e.g. distance from optimal position)
-                fitness += Math.sqrt(positions[i][j]);
+                if (positions[i][j] != 0) {
+                    vmTime[j] += taskList.get(i).getCloudletLength() / vmList.get(j).getMips();
+                    makespan = Math.max(makespan, vmTime[j]);
+                }
             }
         }
-        return fitness;
+        return makespan;
+    }
+
+    private double calculateCost(List<Cloudlet> taskList){
+        double cost = 0;
+        for (int i = 0; i < num_tasks; i++) {
+            Cloudlet task = taskList.get(i);
+            cost += task.getCostPerSec() * task.getActualCPUTime();
+        }
+        return cost;
     }
 
     private double[][][] sortedHorse(double[][] fitness, double[][][] positions){
