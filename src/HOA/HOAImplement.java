@@ -2,6 +2,7 @@ package HOA;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
+import utils.HOAConstants;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -1,10 +1,6 @@
-package HOA;
+package utils;
 
 public interface HOAConstants {
-    int SWARM_SIZE = 30;
-    int MAX_ITERATION = 100;
-    int PROBLEM_DIMENSION = 2;
-    double C1 = 2.0;
 
     double ALPHA = 0.1;
     double BETA = 0.3;
