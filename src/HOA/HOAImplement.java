@@ -55,31 +55,9 @@ public class HOAImplement {
         double[][] best_position = positions[0];
         double best_fitness = evaluateFitness(positions[0], taskList, vmList);
 
+        int itr = 0;
         // perform horse herd optimization
-        for (int iteration = 0; iteration < num_iterations; iteration++) {
-            for (int i = 0; i < num_horses; i++){
-//                fitness[i][0] = evaluateFitness(positions[i]);
-                fitness[i][0] = evaluateFitness(positions[i], taskList, vmList);
-                fitness[i][1] = i;
-            }
-
-            // sort by fitness score ascending
-            Arrays.sort(fitness, Comparator.comparingDouble(o -> o[0]));
-
-            // check the leader horse
-            lead_horse = (int)Math.ceil(fitness[0][1]);
-            lead_position = positions[lead_horse];
-            if(fitness[0][0] < best_fitness){
-                best_fitness = fitness[0][0];
-                best_position = lead_position;
-            }
-//            if(fitness[0][0] < 0.01 ){
-//                return getMap(lead_position);
-//            }
-
-            // sorted horses with fitness scores
-            positions = sortedHorse(fitness, positions);
-
+        while (itr < num_iterations) {
             // compute alpha, beta, gamma, delta horses velocity and update positions
             double[][][] alpha_horse_velocity = new double[(int)(HOAConstants.ALPHA*num_horses)][num_tasks][num_vims];
             double[][][] beta_horse_velocity = new double[(int)Math.ceil((HOAConstants.BETA - HOAConstants.ALPHA)*num_horses)][num_tasks][num_vims];
@@ -122,20 +100,26 @@ public class HOAImplement {
                 }
             }
 
+            for (int i = 0; i < num_horses; i++){
+                fitness[i][0] = evaluateFitness(positions[i], taskList, vmList);
+                fitness[i][1] = i;
+            }
+
+            // sort by fitness score ascending
+            Arrays.sort(fitness, Comparator.comparingDouble(o -> o[0]));
+
+            // check the leader horse
+            lead_horse = (int)Math.ceil(fitness[0][1]);
+            lead_position = positions[lead_horse];
+            if(fitness[0][0] < best_fitness){
+                best_fitness = fitness[0][0];
+                best_position = lead_position;
+            }
+            // sorted horses with fitness scores
+            positions = sortedHorse(fitness, positions);
+            itr ++;
         }
 
-        // print final horse positions
-//        System.out.println("Final horse positions:");
-//        for (int i = 0; i < num_horses; i++) {
-//            System.out.println("Horse " + (i+1) + ": " );
-//            displayMatrix(positions[i]);
-//        }
-
-        // print final makespan
-        System.out.println("Best horse makespan:" + fitness[0][0]);
-
-        // return the best horse
-//        return getMap(positions[0]);
         return getMap(best_position);
     }
 
@@ -197,14 +181,6 @@ public class HOAImplement {
 
     // evaluation function to calculate fitness of horses at given positions
     private double evaluateFitness(double[][] positions, List<Cloudlet> taskList, List<Vm> vmList) {
-//        double fitness = 0.0;
-//        for (int i = 0; i < num_tasks; i++) {
-//            for (int j = 0; j < num_vims; j++) {
-//                // calculate fitness based on position (e.g. distance from optimal position)
-//                fitness += Math.sqrt(positions[i][j]);
-//            }
-//        }
-//        return fitness;
         return calculateMakespan(positions, taskList, vmList) + calculateCost(taskList);
     }
 
