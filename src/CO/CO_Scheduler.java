@@ -7,6 +7,7 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 
 import utils.Commons;
+import utils.Constants;
 
 public class CO_Scheduler {
 	public static double main(String[] args) {
@@ -30,11 +31,11 @@ public class CO_Scheduler {
 				Commons.createDatacenter("Datacenter_CO", num);
 
 				// Third step: Create Broker
-				DatacenterBroker_CO broker = createBroker("Broker_CO", 1000);
+				DatacenterBroker_CO broker = createBroker("Broker_CO", Constants.MAX_ITER);
 				int brokerId = broker.getId();
 
 				Commons.createVM(brokerId, num);
-				Commons.createCloudlet(brokerId, 1000);
+				Commons.createCloudlet(brokerId, 100 * k);
 
 				broker.submitVmList(Commons.vmList);
 				broker.submitCloudletList(Commons.cloudletList);

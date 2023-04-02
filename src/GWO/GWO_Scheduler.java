@@ -7,6 +7,7 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 
 import utils.Commons;
+import utils.Constants;
 
 public class GWO_Scheduler {
 	public static double main(String[] args) {
@@ -30,7 +31,7 @@ public class GWO_Scheduler {
 				Commons.createDatacenter("Datacenter_GWO", num);
 
 				// Third step: Create Broker
-				DatacenterBroker_GWO broker = createBroker("Broker_GWO", 1000);
+				DatacenterBroker_GWO broker = createBroker("Broker_GWO", Constants.MAX_ITER);
 				int brokerId = broker.getId();
 
 				Commons.createVM(brokerId, num);
