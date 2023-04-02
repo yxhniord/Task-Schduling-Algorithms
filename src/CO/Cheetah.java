@@ -20,9 +20,7 @@ public class Cheetah {
 	}
 
 	public double getFitness(List<Cloudlet> taskList, List<Vm> vmList) {
-		double w1 = 0.5;
-		double w2 = 0.5;
-		return w1 * calculateMakespan(taskList, vmList) + w2 * calculateEnergy(taskList, vmList);
+		return calculateMakespan(taskList, vmList) + calculateCost(taskList, vmList);
 	}
 
 	public static Cheetah getRandomCheetah(int numberofVM, int numberofJobs) {
@@ -125,11 +123,18 @@ public class Cheetah {
 	private double calculateMakespan(List<Cloudlet> taskList, List<Vm> vmList) {
 		double makespan = 0;
 		double[] vmTime = new double[vmList.size()];
-		for (int i = 0; i < vmList.size(); i++) {
-			for (int j = 0; j < taskList.size(); j++) {
+		for (int j = 0; j < taskList.size(); j++) {
+			int assignment = -1;
+			for (int i = 0; i < vmList.size(); i++) {
 				if (jobVMMapping[i][j] != 0) {
-					// TODO Update
-					vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+					if (assignment == -1) {
+						vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+						assignment = i;
+					} else if (jobVMMapping[i][j] >= jobVMMapping[assignment][j]) {
+						vmTime[assignment] -= taskList.get(j).getCloudletLength() / vmList.get(assignment).getMips();
+						vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+						assignment = i;
+					}
 					makespan = Math.max(makespan, vmTime[i]);
 				}
 			}
@@ -137,13 +142,13 @@ public class Cheetah {
 		return makespan;
 	}
 
-	private double calculateEnergy(List<Cloudlet> taskList, List<Vm> vmList) {
-		// TODO: calculate the energy of the schedule
-		double energy = 0;
+	private double calculateCost(List<Cloudlet> taskList, List<Vm> vmList) {
+		double cost = 0;
 		for (int i = 0; i < taskList.size(); i++) {
-			// energy += taskList.get(i).getCloudletLength() * vmList.get(schedule[i]).getHost()
+			Cloudlet task = taskList.get(i);
+			cost += task.getCostPerSec() * task.getActualCPUTime();
 		}
-		return energy;
+		return cost;
 	}
 
 }
