@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
+import utils.Constants;
 
 public class mGWO_WOA_Implement {
 
@@ -34,7 +35,7 @@ public class mGWO_WOA_Implement {
   protected double A;
   protected double C;
 
-  Random rand = new Random();
+  Random rand = new Random(Constants.RANDOM_SEED);
 
   public Map<Integer,Integer> allocateTasks(List<Cloudlet> taskList,List<Vm> vmList){
     this.taskNum = taskList.size();

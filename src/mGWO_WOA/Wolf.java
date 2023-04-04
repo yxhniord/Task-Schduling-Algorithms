@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
+import utils.Constants;
 
 public class Wolf {
 
@@ -26,7 +27,7 @@ public class Wolf {
 
   public static Wolf generateRandomWolf(List<Cloudlet> taskList, List<Vm> vmList) {
     double[][] mapping = new double[taskList.size()][vmList.size()];
-    Random rand = new Random();
+    Random rand = new Random(Constants.RANDOM_SEED);
     for (int i = 0; i < taskList.size(); i++) {
       int randomVm = rand.nextInt(vmList.size());
       mapping[i][randomVm] = 1;

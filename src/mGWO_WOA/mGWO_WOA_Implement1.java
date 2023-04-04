@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
+import utils.Constants;
 
 public class mGWO_WOA_Implement1 {
 
@@ -41,7 +42,7 @@ public class mGWO_WOA_Implement1 {
   protected double[][] X2;
   protected double[][] X3;
 
-  Random rand = new Random();
+  Random rand = new Random(Constants.RANDOM_SEED);
 
   public Map<Integer,Integer> allocateTasks(List<Cloudlet> taskList,List<Vm> vmList){
     this.taskNum = taskList.size();
@@ -60,7 +61,7 @@ public class mGWO_WOA_Implement1 {
     // Initialize the population
     for(int i = 0; i < popSize; i++) {
       for (int j = 0; j < taskNum; j++) {
-        wolfPositions[i][j] = new Random().nextInt(vmNum);
+        wolfPositions[i][j] = rand.nextInt(vmNum);
       }
     }
 
