@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
 
+import utils.Constants;
+
 public class GreyWolf {
 	private double[][] jobVMMapping;
 
@@ -47,7 +49,7 @@ public class GreyWolf {
 	}
 
 	public void updateGreyWolf(GreyWolf alpha, GreyWolf beta, GreyWolf delta, int t, int maxIt) {
-		Random random = new Random();
+		Random random = new Random(Constants.RANDOM_SEED);
 		double a = generate_a(t, maxIt);
 
 		for (int i = 0; i < jobVMMapping.length; i++) {

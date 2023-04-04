@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
 
+import utils.Constants;
+
 public class Cheetah {
 	private double[][] jobVMMapping;
 
@@ -60,17 +62,17 @@ public class Cheetah {
 				// Step 15
 				if (r2[i][j] <= r3[i][j]) {
 					// Step 16
-					double r4 = Math.max(0, Math.min(3, new Random().nextGaussian() * 0.45 + 1.5));
-					double r1 = Math.max(0, Math.min(1, new Random().nextGaussian() * 0.15 + 0.5));
+					double r4 = Math.max(0, Math.min(3, new Random(Constants.RANDOM_SEED).nextGaussian() * 0.45 + 1.5));
+					double r1 = Math.max(0, Math.min(1, new Random(Constants.RANDOM_SEED).nextGaussian() * 0.15 + 0.5));
 					double H = Math.pow(Math.E, 2 * (1 - t / T)) * (2 * r1 - 1);
 					// Step 17
 					if (H >= r4) {
 						// Step 18 -- Search EQ1
-						double r_hat = Math.max(0, Math.min(1, new Random().nextGaussian() * 0.15 + 0.5));
+						double r_hat = Math.max(0, Math.min(1, new Random(Constants.RANDOM_SEED).nextGaussian() * 0.15 + 0.5));
 						jobVMMapping[i][j] = jobVMMapping[i][j] + r_hat * alpha;
 					} else {
 						// Step 20 -- Attack EQ3
-						double r = new Random().nextGaussian();
+						double r = new Random(Constants.RANDOM_SEED).nextGaussian();
 						double r_dash = Math.pow(Math.abs(r), (r / 2)) * Math.sin(2 * Math.PI * r);
 						double beta = neighbor.jobVMMapping[i][j] - jobVMMapping[i][j];
 						jobVMMapping[i][j] = COImplement.getPrey().jobVMMapping[i][j] + r_dash * beta;
@@ -85,7 +87,7 @@ public class Cheetah {
 	}
 
 	private double[][] generateUniformDistribution(int rows, int cols) {
-		Random random = new Random();
+		Random random = new Random(Constants.RANDOM_SEED);
 		double[][] rnd = new double[rows][cols];
 		for (int i = 0; i < rnd.length; i++) {
 			for (int j = 0; j < rnd[i].length; j++) {
