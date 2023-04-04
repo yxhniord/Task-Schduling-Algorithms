@@ -41,7 +41,7 @@ public class Commons {
     //Creates a container to store VMs. This list is passed to the broker later
     LinkedList<Vm> list = new LinkedList<Vm>();
 
-    Random r = new Random(1);
+    Random r = new Random(Constants.RANDOM_SEED);
     int mips = Constants.VM_MIPS;
     Vm[] vm = new Vm[vms];
 
@@ -68,7 +68,7 @@ public class Commons {
 
     UtilizationModel utilizationModel = new UtilizationModelFull();
     int length = Constants.LEGNTH;
-    Random r1 = new Random(1);
+    Random r1 = new Random(Constants.RANDOM_SEED);
     Cloudlet[] cloudlet = new Cloudlet[cloudlets];
 
     for(int i=0;i<cloudlets;i++){
