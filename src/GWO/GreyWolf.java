@@ -5,25 +5,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
 
-public class GreyWolf {
-	private RealMatrix jobVMMapping;
+import utils.Constants;
 
-	public GreyWolf(RealMatrix jobVMMapping) {
+public class GreyWolf {
+	private double[][] jobVMMapping;
+
+	public GreyWolf(double[][] jobVMMapping) {
 		this.jobVMMapping = jobVMMapping;
 	}
 
 	public double getFitness(List<Cloudlet> taskList, List<Vm> vmList) {
-		double w1 = 0.5;
-		double w2 = 0.5;
-		return w1 * calculateMakespan(taskList, vmList) + w2 * calculateEnergy(taskList, vmList);
+		return calculateMakespan(taskList, vmList) + calculateCost(taskList, vmList);
 	}
 
 	public static GreyWolf getRandomGreyWolf(int numberofVM, int numberofJobs) {
@@ -41,35 +40,45 @@ public class GreyWolf {
 				jobMapping[i][j] = jobs.contains(j) ? 1 : 0;
 			}
 		}
-
-		return new GreyWolf(new Array2DRowRealMatrix(jobMapping));
+		return new GreyWolf(jobMapping);
 	}
 
 	@Override
 	public Object clone() {
-		return new GreyWolf(jobVMMapping.copy());
+		return new GreyWolf(Arrays.stream(jobVMMapping).map(double[]::clone).toArray(double[][]::new));
 	}
 
-	public void updateGreyWolf(GreyWolf alpha, GreyWolf beta, GreyWolf delta, RealMatrix a1, RealMatrix a2,
-			RealMatrix a3, RealMatrix c1, RealMatrix c2, RealMatrix c3) {
-		RealMatrix dAlpha = abs(c1.multiply(alpha.jobVMMapping).subtract(jobVMMapping));
-		RealMatrix dBeta = abs(c2.multiply(beta.jobVMMapping).subtract(jobVMMapping));
-		RealMatrix dDelta = abs(c3.multiply(delta.jobVMMapping).subtract(jobVMMapping));
-		RealMatrix x1 = alpha.jobVMMapping.subtract(a1.multiply(dAlpha));
-		RealMatrix x2 = beta.jobVMMapping.subtract(a2.multiply(dBeta));
-		RealMatrix x3 = delta.jobVMMapping.subtract(a3.multiply(dDelta));
-		jobVMMapping = x1.add(x2).add(x3).scalarMultiply(1 / 3.0);
+	public void updateGreyWolf(GreyWolf alpha, GreyWolf beta, GreyWolf delta, int t, int maxIt) {
+		Random random = new Random(Constants.RANDOM_SEED);
+		double a = generate_a(t, maxIt);
+
+		for (int i = 0; i < jobVMMapping.length; i++) {
+			for (int j = 0; j < jobVMMapping[i].length; j++) {
+				double a1 = 2 * a * random.nextDouble() - a;
+				double a2 = 2 * a * random.nextDouble() - a;
+				double a3 = 2 * a * random.nextDouble() - a;
+				double c1 = 2 * random.nextDouble();
+				double c2 = 2 * random.nextDouble();
+				double c3 = 2 * random.nextDouble();
+				double dAlpha = Math.abs(c1 * alpha.jobVMMapping[i][j] - jobVMMapping[i][j]);
+				double dBeta = Math.abs(c2 * beta.jobVMMapping[i][j] - jobVMMapping[i][j]);
+				double dDelta = Math.abs(c3 * delta.jobVMMapping[i][j] - jobVMMapping[i][j]);
+				double x1 = alpha.jobVMMapping[i][j] - a1 * dAlpha;
+				double x2 = beta.jobVMMapping[i][j] - a2 * dBeta;
+				double x3 = delta.jobVMMapping[i][j] - a3 * dDelta;
+				jobVMMapping[i][j] = (x1 + x2 + x3) / 3.0;
+			}
+		}
 	}
 
 	public Map<Integer, Integer> getMap() {
 		Map<Integer, Integer> allocatedTasks = new HashMap<>();
-		double[][] jobMapping = jobVMMapping.getData();
-		for (int i = 0; i < jobMapping.length; i++) {
-			for (int j = 0; j < jobMapping[i].length; j++) {
-				if (jobMapping[i][j] != 0) {
+		for (int i = 0; i < jobVMMapping.length; i++) {
+			for (int j = 0; j < jobVMMapping[i].length; j++) {
+				if (jobVMMapping[i][j] != 0) {
 					int currentVM = allocatedTasks.getOrDefault(j, -999);
 					if (currentVM != -999) {
-						if (jobMapping[currentVM][j] < jobMapping[i][j]) {
+						if (jobVMMapping[currentVM][j] < jobVMMapping[i][j]) {
 							allocatedTasks.put(j, i);
 						}
 					} else {
@@ -87,23 +96,21 @@ public class GreyWolf {
 		return this.getMap().toString();
 	}
 
-	private RealMatrix abs(RealMatrix a) {
-		double[][] data = a.getData();
-		double[][] doubleArray = Arrays.stream(data)
-                .map(arr -> Arrays.stream(arr).map(d -> Math.abs(d))
-                		.toArray())
-                .toArray(double[][]::new);
-		return new Array2DRowRealMatrix(doubleArray);
-	}
-	
 	private double calculateMakespan(List<Cloudlet> taskList, List<Vm> vmList) {
 		double makespan = 0;
 		double[] vmTime = new double[vmList.size()];
-		for (int i = 0; i < vmList.size(); i++) {
-			for (int j = 0; j < taskList.size(); j++) {
-				if (jobVMMapping.getEntry(i, j) != 0) {
-					// TODO Update
-					vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+		for (int j = 0; j < taskList.size(); j++) {
+			int assignment = -1;
+			for (int i = 0; i < vmList.size(); i++) {
+				if (jobVMMapping[i][j] != 0) {
+					if (assignment == -1) {
+						vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+						assignment = i;
+					} else if (jobVMMapping[i][j] >= jobVMMapping[assignment][j]) {
+						vmTime[assignment] -= taskList.get(j).getCloudletLength() / vmList.get(assignment).getMips();
+						vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+						assignment = i;
+					}
 					makespan = Math.max(makespan, vmTime[i]);
 				}
 			}
@@ -111,13 +118,37 @@ public class GreyWolf {
 		return makespan;
 	}
 
-	private double calculateEnergy(List<Cloudlet> taskList, List<Vm> vmList) {
-		// TODO: calculate the energy of the schedule
-		double energy = 0;
+	private double calculateCost(List<Cloudlet> taskList, List<Vm> vmList) {
+		double cost = 0;
 		for (int i = 0; i < taskList.size(); i++) {
-			// energy += taskList.get(i).getCloudletLength() * vmList.get(schedule[i]).getHost()
+			Cloudlet task = taskList.get(i);
+			cost += task.getCostPerSec() * task.getActualCPUTime();
 		}
-		return energy;
+		return cost;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.deepHashCode(jobVMMapping);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GreyWolf other = (GreyWolf) obj;
+		return Arrays.deepEquals(jobVMMapping, other.jobVMMapping);
+	}
+
+	private double generate_a(int t, int maxIt) {
+		return 2 - 2 * (t / (double) maxIt);
 	}
 
 }

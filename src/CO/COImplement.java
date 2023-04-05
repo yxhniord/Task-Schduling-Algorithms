@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
 
+import utils.Constants;
+
 public class COImplement {
 
 	private static Cheetah prey;
@@ -17,7 +19,7 @@ public class COImplement {
 	public Map<Integer, Integer> allocateTasks(List<Cloudlet> taskList, List<Vm> vmList, int tmax) {
 		// Step 1
 		int D = 3; // Dimension
-		int n = 5; // Population Size
+		int n = Constants.POPULATION; // Population Size
 
 		int vmListSize = vmList.size();
 		int taskListSize = taskList.size();
@@ -43,7 +45,7 @@ public class COImplement {
 		// Step 8
 		while (it <= maxIt) {
 			// Step 9
-			List<Cheetah> m = selectRandomPop(X, new Random().nextInt(n - 2) + 2);
+			List<Cheetah> m = selectRandomPop(X, new Random(Constants.RANDOM_SEED).nextInt(n - 2) + 2);
 
 			// Step 10
 			for (int i = 0; i < m.size(); i++) {
@@ -61,11 +63,11 @@ public class COImplement {
 			// Step 28
 			t = t + 1;
 			if (t > T && t - Math.round(T) - 1 >= 1 && t > 2) {
-				if (prey.getFitness(taskList, vmList)
-						- findLeader(X, taskList, vmList).getFitness(taskList, vmList) < 0.001) {
+				if (Math.abs(prey.getFitness(taskList, vmList)
+						- findLeader(X, taskList, vmList).getFitness(taskList, vmList)) < 0.001 ) {
 					// Leave prey and go back home
 					X = generateInitialPopulation(vmListSize, taskListSize, n);
-					if (prey.getFitness(taskList, vmList) > findLeader(X, taskList, vmList).getFitness(taskList,
+					if (prey.getFitness(taskList, vmList) < findLeader(X, taskList, vmList).getFitness(taskList,
 							vmList)) {
 						X.set(0, prey);
 					} else {
@@ -75,7 +77,7 @@ public class COImplement {
 				}
 			}
 			it = it + 1;
-			if (prey.getFitness(taskList, vmList) < findLeader(X, taskList, vmList).getFitness(taskList, vmList)) {
+			if (prey.getFitness(taskList, vmList) > findLeader(X, taskList, vmList).getFitness(taskList, vmList)) {
 				prey = findLeader(X, taskList, vmList);
 			}
 		}
@@ -103,7 +105,7 @@ public class COImplement {
 	private Cheetah findLeader(List<Cheetah> X, List<Cloudlet> taskList, List<Vm> vmList) {
 		// Get Fitness for each Cheetah
 		List<Double> fitness = X.stream().map(c -> c.getFitness(taskList, vmList)).collect(Collectors.toList());
-		return (Cheetah) X.get(fitness.indexOf(Collections.max(fitness))).clone();
+		return (Cheetah) X.get(fitness.indexOf(Collections.min(fitness))).clone();
 	}
 
 }

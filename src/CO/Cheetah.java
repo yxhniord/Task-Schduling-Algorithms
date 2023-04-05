@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
 
+import utils.Constants;
+
 public class Cheetah {
 	private double[][] jobVMMapping;
 
@@ -20,9 +22,7 @@ public class Cheetah {
 	}
 
 	public double getFitness(List<Cloudlet> taskList, List<Vm> vmList) {
-		double w1 = 0.5;
-		double w2 = 0.5;
-		return w1 * calculateMakespan(taskList, vmList) + w2 * calculateEnergy(taskList, vmList);
+		return calculateMakespan(taskList, vmList) + calculateCost(taskList, vmList);
 	}
 
 	public static Cheetah getRandomCheetah(int numberofVM, int numberofJobs) {
@@ -62,17 +62,17 @@ public class Cheetah {
 				// Step 15
 				if (r2[i][j] <= r3[i][j]) {
 					// Step 16
-					double r4 = Math.max(0, Math.min(3, new Random().nextGaussian() * 0.45 + 1.5));
-					double r1 = Math.max(0, Math.min(1, new Random().nextGaussian() * 0.15 + 0.5));
+					double r4 = Math.max(0, Math.min(3, new Random(Constants.RANDOM_SEED).nextGaussian() * 0.45 + 1.5));
+					double r1 = Math.max(0, Math.min(1, new Random(Constants.RANDOM_SEED).nextGaussian() * 0.15 + 0.5));
 					double H = Math.pow(Math.E, 2 * (1 - t / T)) * (2 * r1 - 1);
 					// Step 17
 					if (H >= r4) {
 						// Step 18 -- Search EQ1
-						double r_hat = Math.max(0, Math.min(1, new Random().nextGaussian() * 0.15 + 0.5));
+						double r_hat = Math.max(0, Math.min(1, new Random(Constants.RANDOM_SEED).nextGaussian() * 0.15 + 0.5));
 						jobVMMapping[i][j] = jobVMMapping[i][j] + r_hat * alpha;
 					} else {
 						// Step 20 -- Attack EQ3
-						double r = new Random().nextGaussian();
+						double r = new Random(Constants.RANDOM_SEED).nextGaussian();
 						double r_dash = Math.pow(Math.abs(r), (r / 2)) * Math.sin(2 * Math.PI * r);
 						double beta = neighbor.jobVMMapping[i][j] - jobVMMapping[i][j];
 						jobVMMapping[i][j] = COImplement.getPrey().jobVMMapping[i][j] + r_dash * beta;
@@ -87,7 +87,7 @@ public class Cheetah {
 	}
 
 	private double[][] generateUniformDistribution(int rows, int cols) {
-		Random random = new Random();
+		Random random = new Random(Constants.RANDOM_SEED);
 		double[][] rnd = new double[rows][cols];
 		for (int i = 0; i < rnd.length; i++) {
 			for (int j = 0; j < rnd[i].length; j++) {
@@ -125,11 +125,18 @@ public class Cheetah {
 	private double calculateMakespan(List<Cloudlet> taskList, List<Vm> vmList) {
 		double makespan = 0;
 		double[] vmTime = new double[vmList.size()];
-		for (int i = 0; i < vmList.size(); i++) {
-			for (int j = 0; j < taskList.size(); j++) {
+		for (int j = 0; j < taskList.size(); j++) {
+			int assignment = -1;
+			for (int i = 0; i < vmList.size(); i++) {
 				if (jobVMMapping[i][j] != 0) {
-					// TODO Update
-					vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+					if (assignment == -1) {
+						vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+						assignment = i;
+					} else if (jobVMMapping[i][j] >= jobVMMapping[assignment][j]) {
+						vmTime[assignment] -= taskList.get(j).getCloudletLength() / vmList.get(assignment).getMips();
+						vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+						assignment = i;
+					}
 					makespan = Math.max(makespan, vmTime[i]);
 				}
 			}
@@ -137,13 +144,13 @@ public class Cheetah {
 		return makespan;
 	}
 
-	private double calculateEnergy(List<Cloudlet> taskList, List<Vm> vmList) {
-		// TODO: calculate the energy of the schedule
-		double energy = 0;
+	private double calculateCost(List<Cloudlet> taskList, List<Vm> vmList) {
+		double cost = 0;
 		for (int i = 0; i < taskList.size(); i++) {
-			// energy += taskList.get(i).getCloudletLength() * vmList.get(schedule[i]).getHost()
+			Cloudlet task = taskList.get(i);
+			cost += task.getCostPerSec() * task.getActualCPUTime();
 		}
-		return energy;
+		return cost;
 	}
 
 }
