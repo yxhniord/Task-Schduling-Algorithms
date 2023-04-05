@@ -29,7 +29,7 @@ public class GWO_Scheduler {
 				Commons.createDatacenter("Datacenter_GWO", Constants.NO_OF_VMS);
 
 				// Third step: Create Broker
-				DatacenterBroker_GWO broker = createBroker("Broker_GWO", Constants.POPULATION,Constants.MAX_ITER);
+				DatacenterBroker_GWO broker = createBroker("Broker_GWO", Constants.POPULATION, Constants.MAX_ITER);
 				int brokerId = broker.getId();
 
 				Commons.createVM(brokerId, Constants.NO_OF_VMS);
