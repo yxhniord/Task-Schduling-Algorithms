@@ -24,8 +24,8 @@ public class mGWO_EBWOA_Scheduler {
             for (int k = 1; k <= 10; k++) {
                 CloudSim.init(Commons.num_user, Commons.calendar, Commons.trace_flag);
 
-                // Second step: Create DataCenters.
-                // DataCenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
+                // Second step: Create Data Centers.
+                // Data Centers are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
                 @SuppressWarnings("unused")
                 Datacenter datacenter = Commons.createDatacenter("Datacenter_mGWO", num);
 
@@ -48,26 +48,20 @@ public class mGWO_EBWOA_Scheduler {
                 CloudSim.stopSimulation();
 
                 double max = 0;
-                double sum = 0;
-                double dtaskNum = k * 100;
-                for (int j = 0; j < 100 * k; j++) {
-                    sum += newList.get(j).getFinishTime();
-                    if (max < newList.get(j).getFinishTime()) {
-                        max = newList.get(j).getFinishTime();
-                    }
-                }
                 double min = Double.MAX_VALUE;
                 for (int j = 0; j < 100 * k; j++) {
-                    if (min > newList.get(j).getExecStartTime()) {
-                        min = newList.get(j).getExecStartTime();
-                    }
+                    max = Math.max(max, newList.get(j).getFinishTime());
+                    min = Math.min(min, newList.get(j).getExecStartTime());
                 }
+                double makespan = max - min;
 
-                double aver = sum / dtaskNum;
-                double di = (max - min) / aver;
+                System.out.println("********makespan = " + makespan);
 
-                System.out.println(" di = " + di);
-                System.out.println("********max = " + max + "*******min = " + min);
+                double cost = 0;
+                for (int j=0;j<100*k;j++){
+                    cost += newList.get(j).getCostPerSec() * newList.get(j).getActualCPUTime();
+                }
+                System.out.println("********cost = " + cost);
 
                 Log.printLine("mGWO Scheduler finished!");
             }

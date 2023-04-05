@@ -2,6 +2,7 @@ package mGWO_mWOA;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
+import utils.Constants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class EBWOAImplementation {
     private int maxIter;
     private List<Cloudlet> taskList;
     private List<Vm> vmList;
-    private final Random random = new Random();
+    Random random = new Random(Constants.RANDOM_SEED);
 
     public Map<Integer, Integer> allocateTasksWithBest(List<Cloudlet> taskList, List<Vm> vmList, int iter, BridgeResult bridgeResult) {
         taskNum = taskList.size();
@@ -80,10 +81,18 @@ public class EBWOAImplementation {
         return makespan;
     }
 
+    private double calculateCost(List<Cloudlet> taskList) {
+        double cost = 0.0;
+        for (Cloudlet task : taskList) {
+            cost += task.getCostPerSec() * task.getActualCPUTime();
+        }
+        return cost;
+    }
+
     private double calculateFitness(int[] schedule) {
         double makespan = calculateMakespan(schedule);
-        double fitness = makespan;
-        return fitness;
+        double cost = calculateCost(taskList);
+        return makespan + cost;
     }
 
     public void updateWhales() {
