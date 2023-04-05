@@ -39,9 +39,10 @@ public class COImplement {
 		int T = (int) (60 * Math.ceil(D / 10.0));
 
 		// Step 8
+		Random random = new Random(Constants.RANDOM_SEED);
 		while (it <= maxIt) {
 			// Step 9
-			List<Cheetah> m = selectRandomPop(X, new Random(Constants.RANDOM_SEED).nextInt(n - 2) + 2);
+			List<Cheetah> m = selectRandomPop(X, random.nextInt(n - 2) + 2);
 
 			// Step 10
 			for (int i = 0; i < m.size(); i++) {
