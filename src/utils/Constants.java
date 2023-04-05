@@ -2,7 +2,6 @@ package utils;
 
 public class Constants {
   //Datacenter Parameters
-  public static int NO_OF_DATACENTERS = 5;
   public static String ARCHITECTURE = "x86";
   public static String OS = "Linux";
   public static double TIME_ZONE = 10.0;
@@ -28,9 +27,13 @@ public class Constants {
   public static String VMM_NAME = "Xen";
 
   //Cloudlet Parameters
+  //LEGTH 100-1000 random
   public static int LEGNTH = 500;
   public static long FILE_SIZE = 300;
   public static long OUTPUT_SIZE = 300;
   public static int TASK_PES = 1;
-  public static int NO_OF_TASKS = 300;
+
+  //Task Scheduler Parameters
+  public static int POPULATION = 30;
+  public static int MAX_ITER = 100;
 }

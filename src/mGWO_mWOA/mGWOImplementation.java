@@ -14,13 +14,9 @@ public class mGWOImplementation {
     public static double[][] X1;
     public static double[][] X2;
     public static double[][] X3;
-    public static double[] a;
-    public static double[] A1;
-    public static double[] C1;
-    public static double[] A2;
-    public static double[] C2;
-    public static double[] A3;
-    public static double[] C3;
+    public static double a;
+    public static double A;
+    public static double C;
     public static int alphaIndex = 0;
     public static int betaIndex = 0;
     public static int deltaIndex = 0;
@@ -51,13 +47,6 @@ public class mGWOImplementation {
         X1 = new double[popSize][taskNum];
         X2 = new double[popSize][taskNum];
         X3 = new double[popSize][taskNum];
-        a = new double[taskNum];
-        A1 = new double[taskNum];
-        C1 = new double[taskNum];
-        A2 = new double[taskNum];
-        C2 = new double[taskNum];
-        A3 = new double[taskNum];
-        C3 = new double[taskNum];
 
         gbest_schedule = new int[taskNum];
 
@@ -83,13 +72,6 @@ public class mGWOImplementation {
         X1 = new double[popSize][taskNum];
         X2 = new double[popSize][taskNum];
         X3 = new double[popSize][taskNum];
-        a = new double[taskNum];
-        A1 = new double[taskNum];
-        C1 = new double[taskNum];
-        A2 = new double[taskNum];
-        C2 = new double[taskNum];
-        A3 = new double[taskNum];
-        C3 = new double[taskNum];
         newPosition = new int[taskNum];
 
         for (int i = 0; i < popSize; i++) {
@@ -129,13 +111,7 @@ public class mGWOImplementation {
         X1 = new double[popSize][taskNum];
         X2 = new double[popSize][taskNum];
         X3 = new double[popSize][taskNum];
-        a = new double[taskNum];
-        A1 = new double[taskNum];
-        C1 = new double[taskNum];
-        A2 = new double[taskNum];
-        C2 = new double[taskNum];
-        A3 = new double[taskNum];
-        C3 = new double[taskNum];
+
         newPosition = new int[taskNum];
 
         for (int i = 0; i < popSize; i++) {
@@ -219,49 +195,27 @@ public class mGWOImplementation {
         beta_wolf = wolfPositions[betaIndex];
         delta_wolf = wolfPositions[deltaIndex];
 
-        // update a
-        for(int j = 0; j < taskNum; j++) {
-            a[j] = 2.0 * (1 - ((Math.pow(current_iteration, 2)) / (Math.pow(maxIter, 2))));
-        }
+
+
 
         //Update position of all wolves
         for(int i = 0; i < popSize; i++) {
+            // update a
+            a = 2.0 * (1 - ((Math.pow(current_iteration, 2)) / (Math.pow(maxIter, 2))));
             r1 = new Random().nextDouble();
             r2 = new Random().nextDouble();
 
-            for (int ii = 0; ii < taskNum; ii++) {
-                A1[ii] = 2.0 * a[ii] * r1 - a[ii];
-            }
-            for (int ii = 0; ii < taskNum; ii++) {
-                C1[ii] = 2.0 * r2;
-            }
-
-            r1 = new Random().nextDouble();
-            r2 = new Random().nextDouble();
-            for(int ii = 0; ii < taskNum; ii++) {
-                A2[ii] = 2.0 * a[ii] * r1 - a[ii];
-            }
-            for(int ii = 0; ii < taskNum; ii++) {
-                C2[ii] = 2.0 * r2;
-            }
-
-            r1 = new Random().nextDouble();
-            r2 = new Random().nextDouble();
-            for(int ii = 0; ii < taskNum; ii++) {
-                A3[ii] = 2.0 * a[ii] * r1 - a[ii];
-            }
-            for(int ii = 0; ii < taskNum; ii++) {
-                C3[ii]=2.0 * r2;
-            }
+            A = 2.0 * a * r1 - a;
+            C = 2.0 * r2;
 
             for(int j = 0; j < taskNum; j++) {
-                X1[i][j] = alpha_wolf[j] - A1[j] * Math.abs(C1[j] * alpha_wolf[j] - wolfPositions[i][j]);
+                X1[i][j] = alpha_wolf[j] - A * Math.abs(C * alpha_wolf[j] - wolfPositions[i][j]);
                 X1[i][j] = simpleBounds(X1[i][j]);
 
-                X2[i][j] = beta_wolf[j] - A2[j] * Math.abs(C2[j] * beta_wolf[j] - wolfPositions[i][j]);
+                X2[i][j] = beta_wolf[j] - A * Math.abs(C * beta_wolf[j] - wolfPositions[i][j]);
                 X2[i][j] = simpleBounds(X2[i][j]);
 
-                X3[i][j] = delta_wolf[j] - A3[j] * Math.abs(C3[j] * delta_wolf[j] - wolfPositions[i][j]);
+                X3[i][j] = delta_wolf[j] - A * Math.abs(C * delta_wolf[j] - wolfPositions[i][j]);
                 X3[i][j] = simpleBounds(X3[i][j]);
 
                 newPosition[j] = (int) simpleBounds((X1[i][j] + X2[i][j] + X3[i][j]) / 3.0);

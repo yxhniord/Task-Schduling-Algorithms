@@ -1,4 +1,4 @@
-package GWO;
+package CO;
 
 import java.util.List;
 
@@ -8,10 +8,10 @@ import org.cloudbus.cloudsim.core.CloudSim;
 
 import utils.Commons;
 
-public class GWO_Scheduler {
+public class CO_Scheduler {
 	public static double main(String[] args) {
 		double finishtime = 0.0;
-		Log.printLine("Starting GWO Scheduler...");
+		Log.printLine("Starting CO Scheduler...");
 
 		try {
 			// First step: Initialize the CloudSim package. It should be called
@@ -26,15 +26,15 @@ public class GWO_Scheduler {
 
 				// Second step: Create Datacenters
 				// Datacenters are the resource providers in CloudSim. We need at list one of
-				// them to run a CloudSim simulation
-				Commons.createDatacenter("Datacenter_GWO", num);
+				// them to run a CloudSim simulations
+				Commons.createDatacenter("Datacenter_CO", num);
 
 				// Third step: Create Broker
-				DatacenterBroker_GWO broker = createBroker("Broker_GWO", 1000);
+				DatacenterBroker_CO broker = createBroker("Broker_CO", 1000);
 				int brokerId = broker.getId();
 
 				Commons.createVM(brokerId, num);
-				Commons.createCloudlet(brokerId, 100 * k);
+				Commons.createCloudlet(brokerId, 1000);
 
 				broker.submitVmList(Commons.vmList);
 				broker.submitCloudletList(Commons.cloudletList);
@@ -66,7 +66,8 @@ public class GWO_Scheduler {
 
 				System.out.println(" di = " + di);
 				System.out.println("********max = " + max + "*******min = " + min);
-				Log.printLine("GWO Scheduler finished!");
+
+				Log.printLine("CO Scheduler finished!");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -75,7 +76,7 @@ public class GWO_Scheduler {
 		return finishtime;
 	}
 
-	private static DatacenterBroker_GWO createBroker(String name, int iter) throws Exception {
-		return new DatacenterBroker_GWO(name, iter);
+	private static DatacenterBroker_CO createBroker(String name, int iter) throws Exception {
+		return new DatacenterBroker_CO(name, iter);
 	}
 }

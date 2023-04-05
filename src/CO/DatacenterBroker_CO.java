@@ -1,4 +1,4 @@
-package GWO;
+package CO;
 
 import java.util.List;
 import java.util.Map;
@@ -10,23 +10,24 @@ import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 
-public class DatacenterBroker_GWO extends DatacenterBroker {
+public class DatacenterBroker_CO extends DatacenterBroker {
 
 	protected int iter;
 
-	public DatacenterBroker_GWO(String name, int iter) throws Exception {
-		super(name);
+	public DatacenterBroker_CO(String name, int iter) throws Exception {
+    super(name);
 
 		this.iter = iter;
-	}
+  }
 
 	@Override
 	protected void submitCloudlets() {
 		List<Cloudlet> clList = getCloudletList();
 		List<Vm> vm_list = getVmsCreatedList();
-		GWOImplement gwo = new GWOImplement();
-		Map<Integer, Integer> allocatedTasks = gwo.allocateTasks(clList, vm_list, iter);
 
+		COImplement co = new COImplement();
+		Map<Integer, Integer> allocatedTasks = co.allocateTasks(clList, vm_list, iter);
+		System.out.println("CO Done");
 		for (int i = 0; i < clList.size(); i++) {
 			Cloudlet cloudlet = clList.get(i);
 			Vm vm = vm_list.get(allocatedTasks.get(i));
