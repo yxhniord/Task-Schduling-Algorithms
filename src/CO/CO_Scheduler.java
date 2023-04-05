@@ -20,21 +20,19 @@ public class CO_Scheduler {
 			Commons.set_cloudsim_parameters();
 
 			// createDatacenter createVM createCloudlet
-			int num = 20;
-
 			for (int k = 1; k <= 10; k++) {
 				CloudSim.init(Commons.num_user, Commons.calendar, Commons.trace_flag);
 
 				// Second step: Create Datacenters
 				// Datacenters are the resource providers in CloudSim. We need at list one of
 				// them to run a CloudSim simulations
-				Commons.createDatacenter("Datacenter_CO", num);
+				Commons.createDatacenter("Datacenter_CO", Constants.NO_OF_VMS);
 
 				// Third step: Create Broker
-				DatacenterBroker_CO broker = createBroker("Broker_CO", Constants.MAX_ITER);
+				DatacenterBroker_CO broker = createBroker("Broker_CO", Constants.POPULATION, Constants.MAX_ITER);
 				int brokerId = broker.getId();
 
-				Commons.createVM(brokerId, num);
+				Commons.createVM(brokerId, Constants.NO_OF_VMS);
 				Commons.createCloudlet(brokerId, 100 * k);
 
 				broker.submitVmList(Commons.vmList);
@@ -49,24 +47,20 @@ public class CO_Scheduler {
 				CloudSim.stopSimulation();
 
 				double max = 0;
-				double sum = 0;
-				double dtaskNum = k * 100;
-				for (int j = 0; j < 100 * k; j++) {
-					sum += newList.get(j).getFinishTime();
-					if (max < newList.get(j).getFinishTime())
-						max = newList.get(j).getFinishTime();
-				}
-				double min = Double.MAX_VALUE;
-				for (int j = 0; j < 100 * k; j++) {
-					if (min > newList.get(j).getExecStartTime())
-						min = newList.get(j).getExecStartTime();
-				}
+		        double min = Double.MAX_VALUE;
+		        for (int j=0;j<100*k;j++){
+		          max = Math.max(max, newList.get(j).getFinishTime());
+		          min = Math.min(min, newList.get(j).getExecStartTime());
+		        }
 
-				double aver = sum / dtaskNum;
-				double di = (max - min) / aver;
+		        double makespan = max - min;
+		        System.out.println("********makespan = " + makespan);
 
-				System.out.println(" di = " + di);
-				System.out.println("********max = " + max + "*******min = " + min);
+		        double cost = 0;
+		        for (int j=0;j<100*k;j++){
+		          cost += newList.get(j).getCostPerSec() * newList.get(j).getActualCPUTime();
+		        }
+		        System.out.println("********cost = " + cost);
 
 				Log.printLine("CO Scheduler finished!");
 			}
@@ -77,7 +71,7 @@ public class CO_Scheduler {
 		return finishtime;
 	}
 
-	private static DatacenterBroker_CO createBroker(String name, int iter) throws Exception {
-		return new DatacenterBroker_CO(name, iter);
+	private static DatacenterBroker_CO createBroker(String name, int popsize, int iter) throws Exception {
+		return new DatacenterBroker_CO(name, popsize, iter);
 	}
 }

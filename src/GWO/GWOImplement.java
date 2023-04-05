@@ -9,16 +9,12 @@ import java.util.stream.Collectors;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
 
-import utils.Constants;
-
 public class GWOImplement {
-	public Map<Integer, Integer> allocateTasks(List<Cloudlet> taskList, List<Vm> vmList, int tmax) {
+	public Map<Integer, Integer> allocateTasks(List<Cloudlet> taskList, List<Vm> vmList, int n, int maxIt) {
 
-		int n = Constants.POPULATION;
 		int taskListSize = taskList.size();
 		int vmListSize = vmList.size();
 		int t = 1;
-		int maxIt = tmax;
 		List<GreyWolf> X = generateInitialPopulation(vmListSize, taskListSize, n);
 		Map<String, GreyWolf> agents = getBestSearchAgents(X, taskList, vmList);
 		GreyWolf alpha = agents.get("alpha");
