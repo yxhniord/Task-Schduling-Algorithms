@@ -12,12 +12,13 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 
 public class DatacenterBroker_CO extends DatacenterBroker {
 
-	protected int iter;
+	protected int maxIter;
+	protected int popSize;
 
-	public DatacenterBroker_CO(String name, int iter) throws Exception {
+	public DatacenterBroker_CO(String name, int pop, int iter) throws Exception {
     super(name);
-
-		this.iter = iter;
+    	this.popSize = pop;
+		this.maxIter = iter;
   }
 
 	@Override
@@ -26,13 +27,13 @@ public class DatacenterBroker_CO extends DatacenterBroker {
 		List<Vm> vm_list = getVmsCreatedList();
 
 		COImplement co = new COImplement();
-		Map<Integer, Integer> allocatedTasks = co.allocateTasks(clList, vm_list, iter);
-		System.out.println("CO Done");
-		for (int i = 0; i < clList.size(); i++) {
-			Cloudlet cloudlet = clList.get(i);
-			Vm vm = vm_list.get(allocatedTasks.get(i));
-			Log.printLine(CloudSim.clock() + ": " + getName() + ": Sending cloudlet " + cloudlet.getCloudletId()
-					+ " to VM #" + vm.getId());
+		Map<Integer, Integer> allocatedTasks = co.allocateTasks(clList, vm_list, popSize, maxIter);
+		
+		for (Map.Entry<Integer, Integer> entry : allocatedTasks.entrySet()) {
+			Cloudlet cloudlet = clList.get(entry.getKey());
+			Vm vm = vm_list.get(entry.getValue());
+			Log.printLine(CloudSim.clock() + ": " + getName() + ": Sending cloudlet "
+					+ cloudlet.getCloudletId() + " to VM #" + vm.getId());
 			cloudlet.setVmId(vm.getId());
 			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.CLOUDLET_SUBMIT, cloudlet);
 			cloudletsSubmitted++;
