@@ -120,6 +120,19 @@ public class HOAImplement {
             itr ++;
         }
 
+        // print final horse positions
+//        System.out.println("Final horse positions:");
+//        for (int i = 0; i < num_horses; i++) {
+//            System.out.println("Horse " + (i+1) + ": " );
+//            displayMatrix(positions[i]);
+//        }
+
+        // print final makespan
+//        System.out.println("Best horse makespan:" + fitness[0][0]);
+
+        // return the best horse
+//        return getMap(positions[0]);
+
         return getMap(best_position);
     }
 

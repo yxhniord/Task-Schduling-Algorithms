@@ -35,6 +35,10 @@ public class Constants {
 
   //Task Scheduler Parameters
   public static int POPULATION = 30;
+<<<<<<< Updated upstream
   public static int MAX_ITER = 100;
   public static int RANDOM_SEED = 546272;
+=======
+  public static int MAX_ITER = 0;
+>>>>>>> Stashed changes
 }
