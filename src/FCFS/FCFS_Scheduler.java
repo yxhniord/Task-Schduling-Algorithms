@@ -9,8 +9,9 @@ import utils.Commons;
 import utils.Constants;
 
 public class FCFS_Scheduler {
-  public static double main(String[] args) {
+  public static void main(String[] args) {
     double finishtime = 0.0;
+    long startTime = System.currentTimeMillis();
     Log.printLine("Starting FCFS Scheduler...");
 
     try {
@@ -73,7 +74,8 @@ public class FCFS_Scheduler {
       e.printStackTrace();
       Log.printLine("The simulation has been terminated due to an unexpected error");
     }
-    return finishtime;
+    long finishTime = System.currentTimeMillis();
+    System.out.println("runtime: " + (finishTime - startTime));
   }
 
   private static DatacenterBroker_FCFS createBroker(String name) throws Exception {
