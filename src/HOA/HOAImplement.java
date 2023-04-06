@@ -59,7 +59,7 @@ public class HOAImplement {
         // perform horse herd optimization
         while (itr < num_iterations) {
             // compute alpha, beta, gamma, delta horses velocity and update positions
-            double[][][] alpha_horse_velocity = new double[(int)(HOAConstants.ALPHA*num_horses)][num_tasks][num_vims];
+            double[][][] alpha_horse_velocity = new double[(int)Math.ceil(HOAConstants.ALPHA*num_horses)][num_tasks][num_vims];
             double[][][] beta_horse_velocity = new double[(int)Math.ceil((HOAConstants.BETA - HOAConstants.ALPHA)*num_horses)][num_tasks][num_vims];
             double[][][] gamma_horse_velocity = new double[(int)Math.ceil((HOAConstants.GAMMA - HOAConstants.BETA)*num_horses)][num_tasks][num_vims];
             double[][][] delta_horse_velocity = new double[(int)Math.ceil((HOAConstants.DELTA - HOAConstants.GAMMA)*num_horses)][num_tasks][num_vims];
