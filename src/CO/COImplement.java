@@ -15,11 +15,10 @@ import utils.Constants;
 public class COImplement {
 
 	private static Cheetah prey;
-
-	public Map<Integer, Integer> allocateTasks(List<Cloudlet> taskList, List<Vm> vmList, int tmax) {
+	
+	public Map<Integer, Integer> allocateTasks(List<Cloudlet> taskList, List<Vm> vmList, int n, int maxIt) {
 		// Step 1
 		int D = 3; // Dimension
-		int n = Constants.POPULATION; // Population Size
 
 		int vmListSize = vmList.size();
 		int taskListSize = taskList.size();
@@ -36,16 +35,14 @@ public class COImplement {
 		// Step 5
 		int it = 1;
 
-		// Step 6
-		int maxIt = D * tmax;
-
 		// Step 7
 		int T = (int) (60 * Math.ceil(D / 10.0));
 
 		// Step 8
+		Random random = new Random(Constants.RANDOM_SEED);
 		while (it <= maxIt) {
 			// Step 9
-			List<Cheetah> m = selectRandomPop(X, new Random(Constants.RANDOM_SEED).nextInt(n - 2) + 2);
+			List<Cheetah> m = selectRandomPop(X, random.nextInt(n - 2) + 2);
 
 			// Step 10
 			for (int i = 0; i < m.size(); i++) {

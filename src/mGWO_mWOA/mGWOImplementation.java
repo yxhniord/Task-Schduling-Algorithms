@@ -2,6 +2,7 @@ package mGWO_mWOA;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Vm;
+import utils.Constants;
 
 import java.util.*;
 
@@ -34,6 +35,8 @@ public class mGWOImplementation {
     public static double gbest_fitness = Double.MAX_VALUE;
     public static int[] gbest_schedule;
     public static List<int[]> schedules = new ArrayList<int[]>();
+
+    Random random = new Random(Constants.RANDOM_SEED);
 
     public void init(int jobNum, int maxVmNum) {
         taskNum = jobNum;
@@ -157,10 +160,18 @@ public class mGWOImplementation {
         return makespan;
     }
 
+    private double calculateCost(List<Cloudlet> taskList) {
+        double cost = 0.0;
+        for (Cloudlet task : taskList) {
+            cost += task.getCostPerSec() * task.getActualCPUTime();
+        }
+        return cost;
+    }
+
     private double calculateFitness(int[] schedule, List<Cloudlet> taskList, List<Vm> vmList) {
         double makespan = calculateMakespan(schedule, taskList, vmList);
-        double fitness = makespan;
-        return fitness;
+        double cost = calculateCost(taskList);
+        return makespan + cost;
     }
 
     public void updateWolves(List<Cloudlet> taskList, List<Vm> vmList) {
@@ -195,15 +206,12 @@ public class mGWOImplementation {
         beta_wolf = wolfPositions[betaIndex];
         delta_wolf = wolfPositions[deltaIndex];
 
-
-
-
         //Update position of all wolves
         for(int i = 0; i < popSize; i++) {
             // update a
             a = 2.0 * (1 - ((Math.pow(current_iteration, 2)) / (Math.pow(maxIter, 2))));
-            r1 = new Random().nextDouble();
-            r2 = new Random().nextDouble();
+            r1 = random.nextDouble();
+            r2 = random.nextDouble();
 
             A = 2.0 * a * r1 - a;
             C = 2.0 * r2;
@@ -220,8 +228,7 @@ public class mGWOImplementation {
 
                 newPosition[j] = (int) simpleBounds((X1[i][j] + X2[i][j] + X3[i][j]) / 3.0);
 
-//                wolfPositions[i][j] = (int) ((X1[i][j] + X2[i][j] + X3[i][j]) / 3.0);
-//                wolfPositions[i][j] = (int) simpleBounds(wolfPositions[i][j]);
+
             }
 //            schedules.set(i, wolfPositions[i]);
             if (calculateFitness(newPosition, taskList, vmList) < wolfFitness[i]) {
