@@ -24,7 +24,7 @@ public class Cheetah {
 	}
 
 	public double getFitness(List<Cloudlet> taskList, List<Vm> vmList) {
-		return calculateMakespan(taskList, vmList) + calculateCost(taskList, vmList);
+		return calculateMakespan(taskList, vmList) + 0.001 * calculateCost(taskList, vmList);
 	}
 
 	public static Cheetah getRandomCheetah(int numberofVM, int numberofJobs) {
@@ -149,7 +149,7 @@ public class Cheetah {
 		double cost = 0;
 		for (int i = 0; i < taskList.size(); i++) {
 			Cloudlet task = taskList.get(i);
-			cost += task.getCostPerSec() * task.getActualCPUTime();
+			cost += task.getCloudletTotalLength() * 0.1;
 		}
 		return cost;
 	}

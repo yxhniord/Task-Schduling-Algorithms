@@ -61,15 +61,9 @@ public class COImplement {
 			t = t + 1;
 			if (t > T && t - Math.round(T) - 1 >= 1 && t > 2) {
 				if (Math.abs(prey.getFitness(taskList, vmList)
-						- findLeader(X, taskList, vmList).getFitness(taskList, vmList)) < 0.001 ) {
+						- findLeader(X, taskList, vmList).getFitness(taskList, vmList)) < 0.001) {
 					// Leave prey and go back home
 					X = generateInitialPopulation(vmListSize, taskListSize, n);
-					if (prey.getFitness(taskList, vmList) < findLeader(X, taskList, vmList).getFitness(taskList,
-							vmList)) {
-						X.set(0, prey);
-					} else {
-						prey = findLeader(X, taskList, vmList);
-					}
 					t = 0;
 				}
 			}
