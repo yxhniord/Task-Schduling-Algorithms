@@ -1,5 +1,6 @@
 package mGWO_mWOA;
 
+import GWO.GWOImplement;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -13,10 +14,11 @@ import java.util.Map;
 public class DatacenterBroker_mGWO_EBWOA extends DatacenterBroker {
 
     protected int iter;
+    protected int population;
 
-    public DatacenterBroker_mGWO_EBWOA(String name, int iter) throws Exception {
+    public DatacenterBroker_mGWO_EBWOA(String name, int population, int iter) throws Exception {
         super(name);
-
+        this.population = population;
         this.iter = iter;
     }
 
@@ -27,8 +29,8 @@ public class DatacenterBroker_mGWO_EBWOA extends DatacenterBroker {
 
         mGWOImplementation mGWO = new mGWOImplementation();
         EBWOAImplementation ebWOA = new EBWOAImplementation();
-        BridgeResult bridgeResult = mGWO.allocateTasksHybrid(clList, vm_list, iter);
-        Map<Integer, Integer> allocatedTasks = ebWOA.allocateTasksWithBest(clList, vm_list, iter, bridgeResult);
+        BridgeResult bridgeResult = mGWO.allocateTasksHybrid(clList, vm_list, population, iter);
+        Map<Integer, Integer> allocatedTasks = ebWOA.allocateTasksWithBest(clList, vm_list, population, iter, bridgeResult);
 
         for (int i = 0; i < clList.size(); i++) {
             Cloudlet cloudlet = clList.get(i);

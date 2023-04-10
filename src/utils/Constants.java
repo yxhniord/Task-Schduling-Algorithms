@@ -18,7 +18,7 @@ public class Constants {
   public static int HOST_ID = 0;
 
   //VM Parameters
-  public static int NO_OF_VMS = 20;
+  public static int NO_OF_VMS = 30;
   public static long VM_IMAGE_SIZE = 10000;
   public static int VM_RAM = 512;
   public static int VM_MIPS = 500;
