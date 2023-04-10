@@ -9,7 +9,7 @@ import java.util.*;
 public class mGWOImplementation {
     public static int taskNum;
     public static int vmNum;
-    public static int popSize = 30;
+    public static int popSize;
     public static int[][] wolfPositions;
     public static double[] wolfFitness;
     public static double[][] X1;
@@ -56,7 +56,7 @@ public class mGWOImplementation {
         for(int i = 0; i < popSize; i++) {
             for (int j = 0; j < taskNum; j++) {
                 // assign task j to a random vm
-                wolfPositions[i][j] = new Random().nextInt(vmNum);
+                wolfPositions[i][j] = random.nextInt(vmNum);
             }
             schedules.add(wolfPositions[i]);
         }
@@ -79,7 +79,7 @@ public class mGWOImplementation {
 
         for (int i = 0; i < popSize; i++) {
             for (int j = 0; j < taskNum; j++) {
-                wolfPositions[i][j] = new Random().nextInt(vmNum);
+                wolfPositions[i][j] = random.nextInt(vmNum);
             }
 //            schedules.add(wolfPositions[i]);
         }
@@ -101,10 +101,11 @@ public class mGWOImplementation {
         return res;
     }
 
-    public BridgeResult allocateTasksHybrid(List<Cloudlet> taskList, List<Vm> vmList, int iter) {
+    public BridgeResult allocateTasksHybrid(List<Cloudlet> taskList, List<Vm> vmList, int population, int iter) {
         taskNum = taskList.size();
         vmNum = vmList.size();
         maxIter = iter;
+        popSize = population;
 
         wolfPositions = new int[popSize][taskNum];  // [i][j] = ith search agent, assign task j to vm [i][j].
         wolfFitness = new double[popSize];
@@ -119,7 +120,7 @@ public class mGWOImplementation {
 
         for (int i = 0; i < popSize; i++) {
             for (int j = 0; j < taskNum; j++) {
-                wolfPositions[i][j] = new Random().nextInt(vmNum);
+                wolfPositions[i][j] = random.nextInt(vmNum);
             }
 //            schedules.add(wolfPositions[i]);
         }
@@ -163,7 +164,8 @@ public class mGWOImplementation {
     private double calculateCost(List<Cloudlet> taskList) {
         double cost = 0.0;
         for (Cloudlet task : taskList) {
-            cost += task.getCostPerSec() * task.getActualCPUTime();
+            // 0.1 is the assumed price unit
+            cost += task.getCloudletLength() * 0.1;
         }
         return cost;
     }
@@ -171,7 +173,7 @@ public class mGWOImplementation {
     private double calculateFitness(int[] schedule, List<Cloudlet> taskList, List<Vm> vmList) {
         double makespan = calculateMakespan(schedule, taskList, vmList);
         double cost = calculateCost(taskList);
-        return makespan + cost;
+        return makespan + 0.001 * cost;
     }
 
     public void updateWolves(List<Cloudlet> taskList, List<Vm> vmList) {
@@ -210,8 +212,8 @@ public class mGWOImplementation {
         for(int i = 0; i < popSize; i++) {
             // update a
             a = 2.0 * (1 - ((Math.pow(current_iteration, 2)) / (Math.pow(maxIter, 2))));
-            r1 = random.nextDouble();
-            r2 = random.nextDouble();
+            r1 = new Random().nextDouble();
+            r2 = new Random().nextDouble();
 
             A = 2.0 * a * r1 - a;
             C = 2.0 * r2;

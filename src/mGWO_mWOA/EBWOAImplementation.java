@@ -34,12 +34,13 @@ public class EBWOAImplementation {
     private List<Vm> vmList;
     Random random = new Random(Constants.RANDOM_SEED);
 
-    public Map<Integer, Integer> allocateTasksWithBest(List<Cloudlet> taskList, List<Vm> vmList, int iter, BridgeResult bridgeResult) {
+    public Map<Integer, Integer> allocateTasksWithBest(List<Cloudlet> taskList, List<Vm> vmList, int population, int iter, BridgeResult bridgeResult) {
         taskNum = taskList.size();
         vmNum = vmList.size();
         maxIter = iter;
         this.taskList = taskList;
         this.vmList = vmList;
+        popSize = population;
 
         whalePositions = new int[popSize][taskNum];
         whaleFitness = new double[popSize];
@@ -84,7 +85,7 @@ public class EBWOAImplementation {
     private double calculateCost(List<Cloudlet> taskList) {
         double cost = 0.0;
         for (Cloudlet task : taskList) {
-            cost += task.getCostPerSec() * task.getActualCPUTime();
+            cost += task.getCloudletLength() * 0.1;
         }
         return cost;
     }
@@ -92,17 +93,17 @@ public class EBWOAImplementation {
     private double calculateFitness(int[] schedule) {
         double makespan = calculateMakespan(schedule);
         double cost = calculateCost(taskList);
-        return makespan + cost;
+        return makespan + 0.001 * cost;
     }
 
     public void updateWhales() {
         for (int i = 0; i < popSize; i++) {
             a = 2.0 * (1 - currentIter * 1.0 / maxIter);
-            r = random.nextDouble();
+            r = new Random().nextDouble();
             A = 2 * a * r - a;
             C = 2 * r;
-            l = random.nextDouble(-1, 1);
-            p = random.nextDouble();
+            l = new Random().nextDouble(-1, 1);
+            p = new Random().nextDouble();
 
             if (p < 0.5) {
                 if (Math.abs(A) < 1) {
@@ -111,7 +112,7 @@ public class EBWOAImplementation {
                         X[i][j] = simpleBounds(X[i][j]);
                     }
                 } else {
-                    int[] randomPosition = whalePositions[random.nextInt(popSize)];
+                    int[] randomPosition = whalePositions[new Random().nextInt(popSize)];
                     for (int j = 0; j < taskNum; j++) {
                         X[i][j] = randomPosition[j] - A * Math.abs(C * randomPosition[j] - X[i][j]);
                         X[i][j] = simpleBounds(X[i][j]);
