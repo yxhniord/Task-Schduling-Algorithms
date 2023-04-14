@@ -1,5 +1,6 @@
 package HOA;
 
+import CO.COImplement;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
@@ -24,15 +25,14 @@ public class DatacenterBroker_HOA extends DatacenterBroker {
         List<Cloudlet> clList = getCloudletList();
         List<Vm> vm_list = getVmsCreatedList();
 
-        HOAImplement hoa = new HOAImplement(num_horses, iter, clList.size(), vm_list.size());
+        NewHOAImplement hoa = new NewHOAImplement(num_horses, iter, clList.size(), vm_list.size());
         Map<Integer, Integer> allocatedTasks = hoa.implement(clList, vm_list);
-        System.out.println("allocatedTasks"+ allocatedTasks.get(1));
-        System.out.println("HOA Done");
-        for (int i = 0; i < clList.size(); i++) {
-            Cloudlet cloudlet = clList.get(i);
-            Vm vm = vm_list.get(allocatedTasks.get(i));
-            Log.printLine(CloudSim.clock() + ": " + getName() + ": Sending cloudlet " + cloudlet.getCloudletId()
-                    + " to VM #" + vm.getId());
+
+        for (Map.Entry<Integer, Integer> entry : allocatedTasks.entrySet()) {
+            Cloudlet cloudlet = clList.get(entry.getKey());
+            Vm vm = vm_list.get(entry.getValue());
+            Log.printLine(CloudSim.clock() + ": " + getName() + ": Sending cloudlet "
+                    + cloudlet.getCloudletId() + " to VM #" + vm.getId());
             cloudlet.setVmId(vm.getId());
             sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudSimTags.CLOUDLET_SUBMIT, cloudlet);
             cloudletsSubmitted++;

@@ -1,20 +1,19 @@
-package HOA;
+package newHOA;
 
+import HOA.DatacenterBroker_HOA;
 import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import utils.Commons;
-import utils.Constants;
 
 import java.util.List;
 
-public class Hoa {
+public class newHoa {
     private int itr;
     private int numJobs;
     private int numVms;
     private int population;
 
-    public Hoa(int itr, int numJobs, int numVms, int population){
+    public newHoa(int itr, int numJobs, int numVms, int population){
         this.itr = itr;
         this.numJobs = numJobs;
         this.numVms = numVms;
@@ -33,10 +32,10 @@ public class Hoa {
         // Second step: Create Datacenters
         // Datacenters are the resource providers in CloudSim. We need at list one of
         // them to run a CloudSim simulations
-        Commons.createDatacenter("Datacenter_HOA",numVms);
+        Commons.createDatacenter("Datacenter_HOA", numVms);
 
         // Third step: Create Broker
-        DatacenterBroker_HOA broker = createBroker("Broker_HOA", population, itr);
+        DatacenterBroker_newHOA broker = createBroker("Broker_HOA", population, itr);
         int brokerId = broker.getId();
 
         Commons.createVM(brokerId, numVms);
@@ -70,8 +69,8 @@ public class Hoa {
         return finishTime;
     }
 
-    private static DatacenterBroker_HOA createBroker(String name, int num_horse, int iter) throws Exception {
-        return new DatacenterBroker_HOA(name, num_horse, iter);
+    private static DatacenterBroker_newHOA createBroker(String name, int num_horse, int iter) throws Exception {
+        return new DatacenterBroker_newHOA(name, num_horse, iter);
     }
 
 }

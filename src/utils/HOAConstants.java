@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Random;
+
 public interface HOAConstants {
 
     double ALPHA = 0.1;
@@ -28,7 +30,7 @@ public interface HOAConstants {
     double w = 0.95;
     double g_l = 0.95;
     double g_u = 1.05;
-    double p = Math.random();
+    double p = new Random(Constants.RANDOM_SEED).nextDouble();
     double BAD = 0.2;
     double GOOD = 0.1;
 }

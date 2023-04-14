@@ -44,7 +44,7 @@ public class mGWO {
         int brokerId = broker.getId();
 
         Commons.createVM(brokerId, numVms);
-        Commons.createCloudlet(brokerId,100*numJobs);
+        Commons.createCloudlet(brokerId,numJobs);
 
         broker.submitVmList(Commons.vmList);
         broker.submitCloudletList(Commons.cloudletList);
@@ -59,17 +59,17 @@ public class mGWO {
 
         double max = 0;
         double min = Double.MAX_VALUE;
-        for (int j=0;j<100*numJobs;j++){
+        for (int j=0;j<numJobs;j++){
             max = Math.max(max, newList.get(j).getFinishTime());
             min = Math.min(min, newList.get(j).getExecStartTime());
         }
 
         double makespan = max - min;
         double cost = 0;
-        for (int j=0;j<100*numJobs;j++){
+        for (int j=0;j<numJobs;j++){
             cost += newList.get(j).getCostPerSec() * newList.get(j).getActualCPUTime();
         }
-        finishTime = makespan + cost;
+        finishTime = makespan + cost*0.001;
         return finishTime;
     }
 

@@ -101,7 +101,7 @@ public class EBWOAImplementation {
             r = random.nextDouble();
             A = 2 * a * r - a;
             C = 2 * r;
-            l = random.nextDouble(-1, 1);
+            l = random.nextDouble();
             p = random.nextDouble();
 
             if (p < 0.5) {

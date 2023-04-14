@@ -18,7 +18,7 @@ public class Constants {
   public static int HOST_ID = 0;
 
   //VM Parameters
-  public static int NO_OF_VMS = 20;
+  public static int NO_OF_VMS = 30;
   public static long VM_IMAGE_SIZE = 10000;
   public static int VM_RAM = 512;
   public static int VM_MIPS = 500;
@@ -35,10 +35,6 @@ public class Constants {
 
   //Task Scheduler Parameters
   public static int POPULATION = 30;
-<<<<<<< Updated upstream
   public static int MAX_ITER = 100;
   public static int RANDOM_SEED = 546272;
-=======
-  public static int MAX_ITER = 0;
->>>>>>> Stashed changes
 }

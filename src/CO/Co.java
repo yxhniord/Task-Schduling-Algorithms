@@ -40,7 +40,7 @@ public class Co {
         Commons.createDatacenter("Datacenter_CO", numVms);
 
         // Third step: Create Broker
-        DatacenterBroker_CO broker = createBroker("Broker_CO", itr);
+        DatacenterBroker_CO broker = createBroker("Broker_CO",population, itr);
         int brokerId = broker.getId();
 
         Commons.createVM(brokerId, numVms);
@@ -70,10 +70,10 @@ public class Co {
             cost += newList.get(j).getCostPerSec() * newList.get(j).getActualCPUTime();
         }
         finishtime = makespan + cost;
-        return finishtime;
+        return makespan;
     }
 
-    private static DatacenterBroker_CO createBroker(String name, int iter) throws Exception {
-        return new DatacenterBroker_CO(name, iter);
+    private static DatacenterBroker_CO createBroker(String name, int pop, int iter) throws Exception {
+        return new DatacenterBroker_CO(name, pop, iter);
     }
 }

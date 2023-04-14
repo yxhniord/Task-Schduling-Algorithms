@@ -8,21 +8,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class HOAImplement {
+public class NewHOAImplement {
     private int num_horses;
     private int num_iterations;
     private int num_tasks;
     private int num_vims;
 
-    public HOAImplement(int num_horses, int num_iterations, int num_tasks, int num_vims){
+    public NewHOAImplement(int num_horses, int num_iterations, int num_tasks, int num_vims){
         this.num_horses = num_horses;
         this.num_iterations = num_iterations;
         this.num_tasks = num_tasks;
         this.num_vims = num_vims;
     }
 
-    private static double[][] initiate(int num_tasks, int num_vims){
-        double[][] jobMapping = new double[num_tasks][num_vims];
+    private static double[][] initiate(int num_vims, int num_tasks){
+        double[][] jobMapping = new double[num_vims][num_tasks];
 
         List<Integer> jobList = IntStream.rangeClosed(0, num_tasks - 1).boxed().collect(Collectors.toList());
         Collections.shuffle(jobList);
@@ -33,7 +33,7 @@ public class HOAImplement {
         for (int i = 0; i < num_vims; i++) {
             List<Integer> jobs = groups.get(i);
             for (int j = 0; j < num_tasks; j++) {
-                jobMapping[j][i] = jobMapping[j][i]==1.0 ? 1 : (jobs.contains(j) ? 1 : 0);
+                jobMapping[i][j] = jobs.contains(j) ? 1 : 0;
             }
         }
         return jobMapping;
@@ -42,9 +42,10 @@ public class HOAImplement {
 
     public Map<Integer, Integer> implement(List<Cloudlet> taskList, List<Vm> vmList) {
         // initialize horse positions
-        double[][][] positions = new double[num_horses][num_tasks][num_vims];
+        double[][][] positions = new double[num_horses][num_vims][num_tasks];
+
         for (int i = 0; i < num_horses; i++) {
-            positions[i] = initiate(num_tasks, num_vims);
+            positions[i] = initiate(num_vims, num_tasks);
         }
 
         double[][] fitness = new double[num_horses][2];
@@ -59,10 +60,10 @@ public class HOAImplement {
         // perform horse herd optimization
         while (itr < num_iterations) {
             // compute alpha, beta, gamma, delta horses velocity and update positions
-            double[][][] alpha_horse_velocity = new double[(int)Math.ceil(HOAConstants.ALPHA*num_horses)][num_tasks][num_vims];
-            double[][][] beta_horse_velocity = new double[(int)Math.ceil((HOAConstants.BETA - HOAConstants.ALPHA)*num_horses)][num_tasks][num_vims];
-            double[][][] gamma_horse_velocity = new double[(int)Math.ceil((HOAConstants.GAMMA - HOAConstants.BETA)*num_horses)][num_tasks][num_vims];
-            double[][][] delta_horse_velocity = new double[(int)Math.ceil((HOAConstants.DELTA - HOAConstants.GAMMA)*num_horses)][num_tasks][num_vims];
+            double[][][] alpha_horse_velocity = new double[(int)Math.ceil(HOAConstants.ALPHA*num_horses)][num_vims][num_tasks];
+            double[][][] beta_horse_velocity = new double[(int)Math.ceil((HOAConstants.BETA - HOAConstants.ALPHA)*num_horses)][num_vims][num_tasks];
+            double[][][] gamma_horse_velocity = new double[(int)Math.ceil((HOAConstants.GAMMA - HOAConstants.BETA)*num_horses)][num_vims][num_tasks];
+            double[][][] delta_horse_velocity = new double[(int)Math.ceil((HOAConstants.DELTA - HOAConstants.GAMMA)*num_horses)][num_vims][num_tasks];
 
             for (int i = 0; i < num_horses; i++) {
                 if(i < (int)Math.ceil(HOAConstants.ALPHA*num_horses)){
@@ -72,7 +73,7 @@ public class HOAImplement {
                 }else if(i < (int)Math.ceil(HOAConstants.BETA*num_horses)){
                     beta_horse_velocity[i - (int)Math.ceil(HOAConstants.ALPHA*num_horses)] = matrixAddition(
                             matrixAddition(matrixMultiply(HOAConstants.g_Beta*(HOAConstants.g_u + HOAConstants.g_l*HOAConstants.p)*HOAConstants.w, positions[i]),
-                                    matrixMultiply(HOAConstants.h_Beta*HOAConstants.w,matrixSubtraction(positions[0], positions[i]))),
+                                    matrixMultiply(HOAConstants.h_Beta*HOAConstants.w,matrixSubtraction(best_position, positions[i]))),
                             matrixSubtraction(matrixMultiply(HOAConstants.s_Beta*HOAConstants.w,matrixSubtraction(goodAvgPosition(num_horses, positions),positions[i])),
                                     matrixMultiply(HOAConstants.d_Beta*HOAConstants.w,matrixSubtraction(badAvgPosition(HOAConstants.BAD*num_horses, positions),positions[i]))));
                     positions[i] = matrixAddition(positions[i], beta_horse_velocity[i - (int)Math.ceil(HOAConstants.ALPHA*num_horses)]);
@@ -80,7 +81,7 @@ public class HOAImplement {
                     gamma_horse_velocity[i - (int)Math.ceil(HOAConstants.BETA*num_horses)] = matrixAddition(
                             matrixAddition(
                                     matrixMultiply(HOAConstants.g_Gamma*(HOAConstants.g_u + HOAConstants.g_l*HOAConstants.p)*HOAConstants.w, positions[i]),
-                                    matrixMultiply(HOAConstants.h_Gamma*HOAConstants.w,matrixSubtraction(positions[0],positions[i]))),
+                                    matrixMultiply(HOAConstants.h_Gamma*HOAConstants.w,matrixSubtraction(best_position,positions[i]))),
                             matrixAddition(
                                     matrixAddition(
                                             matrixMultiply(HOAConstants.s_Gamma*HOAConstants.w, matrixSubtraction(goodAvgPosition(num_horses, positions),positions[i])),
@@ -163,7 +164,7 @@ public class HOAImplement {
 
     // the worst horses positions average
     private double[][] badAvgPosition(double scalar, double[][][] positions){
-        double[][] matrix = new double[num_tasks][num_vims];
+        double[][] matrix = new double[num_vims][num_tasks];
         for (int i = num_horses - 1; i > num_horses - (int)scalar; i--){
             matrix = matrixAddition(matrix, positions[i]);
         }
@@ -172,7 +173,7 @@ public class HOAImplement {
 
     // the best horses positions average
     private double[][] goodAvgPosition(double scalar, double[][][] positions){
-        double[][] matrix = new double[num_tasks][num_vims];
+        double[][] matrix = new double[num_vims][num_tasks];
         for (int i = 0; i < (int)scalar; i++){
             matrix = matrixAddition(matrix, positions[i]);
         }
@@ -186,21 +187,29 @@ public class HOAImplement {
 
     private double calculateMakespan(double[][] positions, List<Cloudlet> taskList, List<Vm> vmList) {
         double makespan = 0;
-        double[] vmTime = new double[num_vims];
-        for (int i = 0; i < num_tasks; i++) {
-            for (int j = 0; j < num_vims; j++) {
+        double[] vmTime = new double[vmList.size()];
+        for (int j = 0; j < taskList.size(); j++) {
+            int assignment = -1;
+            for (int i = 0; i < vmList.size(); i++) {
                 if (positions[i][j] != 0) {
-                    vmTime[j] += taskList.get(i).getCloudletLength() / vmList.get(j).getMips();
-                    makespan = Math.max(makespan, vmTime[j]);
+                    if (assignment == -1) {
+                        vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+                        assignment = i;
+                    } else if (positions[i][j] >= positions[assignment][j]) {
+                        vmTime[assignment] -= taskList.get(j).getCloudletLength() / vmList.get(assignment).getMips();
+                        vmTime[i] += taskList.get(j).getCloudletLength() / vmList.get(i).getMips();
+                        assignment = i;
+                    }
+                    makespan = Math.max(makespan, vmTime[i]);
                 }
             }
         }
         return makespan;
     }
 
-    private double calculateCost(List<Cloudlet> taskList){
+    private double calculateCost(List<Cloudlet> taskList) {
         double cost = 0;
-        for (int i = 0; i < num_tasks; i++) {
+        for (int i = 0; i < taskList.size(); i++) {
             Cloudlet task = taskList.get(i);
 //            cost += task.getCostPerSec() * task.getActualCPUTime();
             cost += task.getCloudletTotalLength()*0.1;
@@ -209,7 +218,7 @@ public class HOAImplement {
     }
 
     private double[][][] sortedHorse(double[][] fitness, double[][][] positions){
-        double[][][] tmp = new double[num_horses][num_tasks][num_vims];
+        double[][][] tmp = new double[num_horses][num_vims][num_tasks];
         for(int i = 0; i < fitness.length; i++){
             int index = (int)fitness[i][1];
             tmp[i] = positions[index];
@@ -219,17 +228,16 @@ public class HOAImplement {
 
     public Map<Integer, Integer> getMap(double[][] jobVMMapping) {
         Map<Integer, Integer> allocatedTasks = new HashMap<>();
-
         for (int i = 0; i < jobVMMapping.length; i++) {
             for (int j = 0; j < jobVMMapping[i].length; j++) {
                 if (jobVMMapping[i][j] != 0) {
-                    int currentVM = allocatedTasks.getOrDefault(i, -999);
+                    int currentVM = allocatedTasks.getOrDefault(j, -999);
                     if (currentVM != -999) {
-                        if (jobVMMapping[i][currentVM] < jobVMMapping[i][j]) {
-                            allocatedTasks.put(i, j);
+                        if (jobVMMapping[currentVM][j] < jobVMMapping[i][j]) {
+                            allocatedTasks.put(j, i);
                         }
                     } else {
-                        allocatedTasks.put(i, j);
+                        allocatedTasks.put(j, i);
                     }
 
                 }
